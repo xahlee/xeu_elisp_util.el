@@ -192,7 +192,7 @@ The main differences are:
 (defun get-selection-or-unit (φunit)
   "Return the string and boundary of text selection or ΦUNIT under cursor.
 
-If `region-active-p' is true, then the region is the φunit.  Else,
+If `use-region-p' is true, then the region is the φunit.  Else,
 it depends on the ΦUNIT. See `unit-at-cursor' for detail about
 ΦUNIT.
 
@@ -203,7 +203,7 @@ Example usage:
  (setq bds (get-selection-or-unit 'line))
  (setq inputstr (elt bds 0) p1 (elt bds 1) p2 (elt bds 2)  )"
   (interactive)
-  (if (region-active-p)
+  (if (use-region-p)
       (let ((p1 (region-beginning)) (p2 (region-end)))
         (vector (buffer-substring-no-properties p1 p2) p1 p2 )
         )
@@ -364,7 +364,7 @@ When called interactively, work on text selection or current block.
 
 When called in lisp code, if φfrom is nil, returns a changed string, else, change text in the region between positions φfrom ξto."
   (interactive
-   (if (region-active-p)
+   (if (use-region-p)
        (list nil (region-beginning) (region-end))
      (let ((bds (bounds-of-thing-at-point 'paragraph)) )
        (list nil (car bds) (cdr bds)) ) ) )
@@ -480,7 +480,7 @@ When called in a elisp program, if φregion-boundary is nil, returns the changed
 
 See also `current-date-time-string'."
   (interactive "P")
-  (when (region-active-p) (delete-region (region-beginning) (region-end) ) )
+  (when (use-region-p) (delete-region (region-beginning) (region-end) ) )
   (cond
    ((equal φadd-time-stamp-p nil ) (insert (format-time-string "%Y-%m-%d")))
    (t (insert (current-date-time-string))) ) )
