@@ -31,7 +31,6 @@
 ;; is-datetimestamp-p (inputString)
 ;; fix-datetimestamp (φinput-string &optional φfrom-to)
 
-
 ;; The most used two are “unit-at-cursor” and “get-selection-or-unit”. They are intended as improvemnt of “thing-at-point”. For detailed discussion, see:〈Emacs Lisp: get-selection-or-unit〉 @ http://ergoemacs.org/emacs/elisp_get-selection-or-unit.html
 
 ;; This package requires 〔xfrp_find_replace_pairs.el〕
@@ -299,11 +298,8 @@ See also: `get-image-dimensions'."
   (delete-files-by-regex \"~/web\" \"~$\") ; remove files ending in ~
 "
   (require 'find-lisp)
-  (mapc
-   (lambda (ξx) (if (file-regular-p ξx)
-                    (delete-file ξx)
-                  ) )
-   (find-lisp-find-files φdir φregex)) )
+  (mapc (lambda (ξx) (if (file-regular-p ξx) (delete-file ξx)))
+        (find-lisp-find-files φdir φregex)))
 
 (defun file-relative-name-emacs24.1.1-fix (φfile-path φdir-path)
   "fix for `file-relative-name'. If path start with cap such as “C:” (Windows file path), it won't work.
@@ -372,7 +368,7 @@ When called in lisp code, if φfrom is nil, returns a changed string, else, chan
   (require 'xfrp_find_replace_pairs)
 
   (let (workOnStringP
-        inputStr 
+        inputStr
         (charChangeMap [
                         ["á\\|à\\|â\\|ä\\|ã\\|å" "a"]
                         ["é\\|è\\|ê\\|ë" "e"]
@@ -403,7 +399,7 @@ When called in lisp code, if φfrom is nil, returns a changed string, else, chan
 ;; Code originally by Teemu Likonen."
 ;; (interactive
 ;;    (let ((bds (get-selection-or-unit 'block)))
-;;      (list 
+;;      (list
 ;; str (elt bds 0)
 ;; p1 (elt bds 1)
 ;; p2 (elt bds 2)
