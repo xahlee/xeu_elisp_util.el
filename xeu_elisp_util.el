@@ -111,82 +111,72 @@ The main differences are:
 • This function's behavior does not depend on syntax table. e.g. for units 「'word」, 「'block」, etc."
   (let (p1 p2)
     (save-excursion
-        (cond
-         ( (eq φunit 'word)
-           (let ((wordcharset "-A-Za-z0-9ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"))
-             (skip-chars-backward wordcharset)
-             (setq p1 (point))
-             (skip-chars-forward wordcharset)
-             (setq p2 (point)))
-           )
+      (cond
+       ( (eq φunit 'word)
+         (let ((wordcharset "-A-Za-z0-9ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"))
+           (skip-chars-backward wordcharset)
+           (setq p1 (point))
+           (skip-chars-forward wordcharset)
+           (setq p2 (point))))
 
-         ( (eq φunit 'glyphs)
-           (progn
-             (skip-chars-backward "[:graph:]")
-             (setq p1 (point))
-             (skip-chars-forward "[:graph:]")
-             (setq p2 (point)))
-           )
+       ( (eq φunit 'glyphs)
+         (progn
+           (skip-chars-backward "[:graph:]")
+           (setq p1 (point))
+           (skip-chars-forward "[:graph:]")
+           (setq p2 (point))))
 
-         ((eq φunit 'buffer)
-           (progn
-             (setq p1 (point-min))
-             (setq p2 (point-max))
-             )
-           )
+       ((eq φunit 'buffer)
+        (progn
+          (setq p1 (point-min))
+          (setq p2 (point-max))))
 
-         ((eq φunit 'line)
-          (progn
-            (setq p1 (line-beginning-position))
-            (setq p2 (line-end-position))))
-         ((eq φunit 'block)
-          (progn
-            (if (re-search-backward "\n[ \t]*\n" nil "move")
-                (progn (re-search-forward "\n[ \t]*\n")
-                       (setq p1 (point) ) )
-              (setq p1 (point) )
-              )
-            (if (re-search-forward "\n[ \t]*\n" nil "move")
-                (progn (re-search-backward "\n[ \t]*\n")
-                       (setq p2 (point) ))
-              (setq p2 (point) ) ) ))
+       ((eq φunit 'line)
+        (progn
+          (setq p1 (line-beginning-position))
+          (setq p2 (line-end-position))))
+       ((eq φunit 'block)
+        (progn
+          (if (re-search-backward "\n[ \t]*\n" nil "move")
+              (progn (re-search-forward "\n[ \t]*\n")
+                     (setq p1 (point)))
+            (setq p1 (point)))
+          (if (re-search-forward "\n[ \t]*\n" nil "move")
+              (progn (re-search-backward "\n[ \t]*\n")
+                     (setq p2 (point)))
+            (setq p2 (point)))))
 
-         ((eq φunit 'filepath)
-          (let (p0)
-            (setq p0 (point))
-            ;; chars that are likely to be delimiters of full path, e.g. space, tabs, brakets.
-             (skip-chars-backward "^  \"\t\n'|()[]{}<>〔〕“”〈〉《》【】〖〗«»‹›·。\\`")
-             (setq p1 (point))
-             (goto-char p0)
-             (skip-chars-forward "^  \"\t\n'|()[]{}<>〔〕“”〈〉《》【】〖〗«»‹›·。\\'")
-             (setq p2 (point)))
-          )
+       ((eq φunit 'filepath)
+        (let (p0)
+          (setq p0 (point))
+          ;; chars that are likely to be delimiters of full path, e.g. space, tabs, brakets.
+          (skip-chars-backward "^  \"\t\n'|()[]{}<>〔〕“”〈〉《》【】〖〗«»‹›·。\\`")
+          (setq p1 (point))
+          (goto-char p0)
+          (skip-chars-forward "^  \"\t\n'|()[]{}<>〔〕“”〈〉《》【】〖〗«»‹›·。\\'")
+          (setq p2 (point))))
 
-         ((eq φunit 'url)
-          (let (p0
-                ;; (ξdelimitors "^ \t\n,()[]{}<>〔〕“”\"`'!$^*|\;")
-                (ξdelimitors "!\"#$%&'*+,-./0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~")
-                )
-            (setq p0 (point))
-            (skip-chars-backward ξdelimitors) ;"^ \t\n,([{<>〔“\""
-            (setq p1 (point))
-            (goto-char p0)
-            (skip-chars-forward ξdelimitors) ;"^ \t\n,)]}<>〕\"”"
-            (setq p2 (point)))
-          )
+       ((eq φunit 'url)
+        (let (p0
+              ;; (ξdelimitors "^ \t\n,()[]{}<>〔〕“”\"`'!$^*|\;")
+              (ξdelimitors "!\"#$%&'*+,-./0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~"))
+          (setq p0 (point))
+          (skip-chars-backward ξdelimitors) ;"^ \t\n,([{<>〔“\""
+          (setq p1 (point))
+          (goto-char p0)
+          (skip-chars-forward ξdelimitors) ;"^ \t\n,)]}<>〕\"”"
+          (setq p2 (point))))
 
-         ((vectorp φunit)
-          (let (p0)
-             (setq p0 (point))
-             (skip-chars-backward (elt φunit 0))
-             (setq p1 (point))
-             (goto-char p0)
-             (skip-chars-forward (elt φunit 1))
-             (setq p2 (point))))
-         ) )
+       ((vectorp φunit)
+        (let (p0)
+          (setq p0 (point))
+          (skip-chars-backward (elt φunit 0))
+          (setq p1 (point))
+          (goto-char p0)
+          (skip-chars-forward (elt φunit 1))
+          (setq p2 (point))))))
 
-    (vector (buffer-substring-no-properties p1 p2) p1 p2 )
-    ) )
+    (vector (buffer-substring-no-properties p1 p2) p1 p2 )))
 
 (defun get-selection-or-unit (φunit)
   "Return the string and boundary of text selection or ΦUNIT under cursor.
@@ -204,9 +194,8 @@ Example usage:
   (interactive)
   (if (use-region-p)
       (let ((p1 (region-beginning)) (p2 (region-end)))
-        (vector (buffer-substring-no-properties p1 p2) p1 p2 )
-        )
-    (unit-at-cursor φunit) ) )
+        (vector (buffer-substring-no-properties p1 p2) p1 p2 ))
+    (unit-at-cursor φunit)))
 
 
 
@@ -227,8 +216,7 @@ Bug: for large size png, sometimes this returns a wrong dimension 30×30."
         (goto-char (point-min))
         (search-forward-regexp "height=\"\\([0-9]+\\).*\"")
         (setq ξy (match-string 1 ))
-        (vector (string-to-number ξx) (string-to-number ξy))
-        ))
+        (vector (string-to-number ξx) (string-to-number ξy))))
      (t (let (ξxy )
           (progn
             (clear-image-cache t)
@@ -236,11 +224,9 @@ Bug: for large size png, sometimes this returns a wrong dimension 30×30."
                        (create-image
                         (if (file-name-absolute-p φfile-path)
                             φfile-path
-                          (concat default-directory φfile-path) ))
-                       t))
-            )
-          (vector (car ξxy) (cdr ξxy)) )
-        ) ) ))
+                          (concat default-directory φfile-path)))
+                       t)))
+          (vector (car ξxy) (cdr ξxy)))))))
 
 ;; (defun get-image-dimensions-imk (φimg-file-path)
 ;;   "Returns a image file's width and height as a vector.
@@ -260,10 +246,10 @@ Bug: for large size png, sometimes this returns a wrong dimension 30×30."
 This function requires ImageMagick's “identify” shell command.
 See also: `get-image-dimensions'."
   (let ( widthHeightList )
-    (setq widthHeightList (split-string (shell-command-to-string (concat "identify -format \"%w %h\" " φimg-file-path))) )
+    (setq widthHeightList (split-string (shell-command-to-string (concat "identify -format \"%w %h\" " φimg-file-path))))
     (vector
      (string-to-number (elt widthHeightList 0))
-     (string-to-number (elt widthHeightList 1)) ) ))
+     (string-to-number (elt widthHeightList 1)))))
 
 
 (defun get-string-from-file (φfile-path)
@@ -309,7 +295,7 @@ e.g.
 GNU Emacs 24.1.1 (i386-mingw-nt6.1.7601) of 2012-06-10 on MARVIN
 "
   (file-relative-name
-     (replace-regexp-in-string "\\`C:/" "c:/" φfile-path  "FIXEDCASE" "LITERAL") φdir-path ) )
+   (replace-regexp-in-string "\\`C:/" "c:/" φfile-path  "FIXEDCASE" "LITERAL") φdir-path ))
 
 
 (defun trim-string (φstring)
@@ -318,8 +304,7 @@ White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
 
 Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You need to (require 'subr-x).
 "
-(replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" φstring))
-)
+  (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" φstring)))
 
 (defun substract-path (φpath1 φpath2)
   "Remove string φpath2 from the beginning of φpath1.
@@ -333,7 +318,7 @@ This is the roughly the same as emacs 24.4's `string-remove-prefix'.
   (let ((p2length (length φpath2)))
     (if (string= (substring φpath1 0 p2length) φpath2 )
         (substring φpath1 p2length)
-      (error "error 34689: beginning doesn't match: 「%s」 「%s」" φpath1 φpath2) ) ) )
+      (error "error 34689: beginning doesn't match: 「%s」 「%s」" φpath1 φpath2))))
 
 (defun hash-to-list (φhashtable)
   "Return a list that represent the φhashtable.
@@ -351,7 +336,7 @@ See also, emacs 24.4's new functions.
 
 
 (defun asciify-text (φstring &optional φfrom ξto)
-"Change some Unicode characters into equivalent ASCII ones.
+  "Change some Unicode characters into equivalent ASCII ones.
 For example, “passé” becomes “passe”.
 
 This function works on chars in European languages, and does not transcode arbitrary Unicode chars (such as Greek, math symbols).  Un-transformed unicode char remains in the string.
@@ -362,8 +347,8 @@ When called in lisp code, if φfrom is nil, returns a changed string, else, chan
   (interactive
    (if (use-region-p)
        (list nil (region-beginning) (region-end))
-     (let ((bds (bounds-of-thing-at-point 'paragraph)) )
-       (list nil (car bds) (cdr bds)) ) ) )
+     (let ((bds (bounds-of-thing-at-point 'paragraph)))
+       (list nil (car bds) (cdr bds)))))
 
   (require 'xfrp_find_replace_pairs)
 
@@ -382,13 +367,12 @@ When called in lisp code, if φfrom is nil, returns a changed string, else, chan
                         ["þ" "th"]
                         ["ß" "ss"]
                         ["æ" "ae"]
-                        ])
-        )
+                        ]))
     (setq workOnStringP (if φfrom nil t))
     (setq inputStr (if workOnStringP φstring (buffer-substring-no-properties φfrom ξto)))
     (if workOnStringP
-        (let ((case-fold-search t)) (replace-regexp-pairs-in-string inputStr charChangeMap) )
-      (let ((case-fold-search t)) (replace-regexp-pairs-region φfrom ξto charChangeMap) )) ) )
+        (let ((case-fold-search t)) (replace-regexp-pairs-in-string inputStr charChangeMap))
+      (let ((case-fold-search t)) (replace-regexp-pairs-region φfrom ξto charChangeMap)))) )
 
 ;; (defun asciify-text-iconv ()
 ;; "Convert STRING to ASCII string.
@@ -417,7 +401,7 @@ Capitalize first letter of each word, except words like {to, of, the, a, in, or,
 When called in a elisp program, if φregion-boundary is nil, returns the changed φstring, else, work on the region. φregion-boundary is a pair [from to], it can be a vector or list."
   (interactive
    (let ((bds (get-selection-or-unit 'line)))
-     (list nil (vector (elt bds 1) (elt bds 2)) ) ) )
+     (list nil (vector (elt bds 1) (elt bds 2)))))
 
   (let (
         (strPairs '(
@@ -442,22 +426,19 @@ When called in a elisp program, if φregion-boundary is nil, returns the changed
                     [" With " " with "]
                     [" From " " from "]
                     ))
-        (workOnStringP (if φregion-boundary nil t ) )
+        (workOnStringP (if φregion-boundary nil t ))
         (p1 (elt φregion-boundary 0))
-        (p2 (elt φregion-boundary 1))
-        )
+        (p2 (elt φregion-boundary 1)))
 
     (let ((case-fold-search nil))
       (if workOnStringP
           (progn
-            (replace-pairs-in-string-recursive (upcase-initials φstring) strPairs)
-            )
+            (replace-pairs-in-string-recursive (upcase-initials φstring) strPairs))
         (progn
           (save-restriction
             (narrow-to-region p1 p2)
-            (upcase-initials-region (point-min) (point-max) )
-            (replace-regexp-pairs-region (point-min) (point-max) strPairs t t)
-            ) ) ) ) ) )
+            (upcase-initials-region (point-min) (point-max))
+            (replace-regexp-pairs-region (point-min) (point-max) strPairs t t)))))))
 
 
 
@@ -488,8 +469,7 @@ Example: 「2012-04-05T21:08:24-07:00」.
 Note, for the time zone offset, both the formats 「hhmm」 and 「hh:mm」 are valid ISO 8601. However, Atom Webfeed spec seems to require 「hh:mm」."
   (concat
    (format-time-string "%Y-%m-%dT%T")
-   ((lambda (ξx) (format "%s:%s" (substring ξx 0 3) (substring ξx 3 5))) (format-time-string "%z")) )
-  )
+   ((lambda (ξx) (format "%s:%s" (substring ξx 0 3) (substring ξx 3 5))) (format-time-string "%z"))))
 
 (defun is-datetimestamp-p (φinput-string)
   "Return t if φinput-string is a date/time stamp, else nil.
@@ -532,11 +512,9 @@ Code detail: URL `http://ergoemacs.org/emacs/elisp_parse_time.html'"
    (progn
      (require 'xeu_elisp_util)
      (let ((bds (get-selection-or-unit 'line)))
-       (list nil (vector (elt bds 1) (elt bds 2))) )
-     )
-   )
+       (list nil (vector (elt bds 1) (elt bds 2))))))
   (let (
-        (ξstr (if φfrom-to (buffer-substring-no-properties (elt φfrom-to 0) (elt φfrom-to 1) ) φinput-string))
+        (ξstr (if φfrom-to (buffer-substring-no-properties (elt φfrom-to 0) (elt φfrom-to 1)) φinput-string))
         (workOnRegionP (if φfrom-to t nil)))
     (require 'parse-time)
 
@@ -546,39 +524,31 @@ Code detail: URL `http://ergoemacs.org/emacs/elisp_parse_time.html'"
           (cond
            ;; USA convention of mm/dd/yyyy
            ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" ξstr)
-            (concat (match-string 3 ξstr) "-" (match-string 1 ξstr) "-" (match-string 2 ξstr))
-            )
+            (concat (match-string 3 ξstr) "-" (match-string 1 ξstr) "-" (match-string 2 ξstr)))
            ;; USA convention of m/dd/yyyy
            ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" ξstr)
-            (concat (match-string 3 ξstr) "-0" (match-string 1 ξstr) "-" (match-string 2 ξstr))
-            )
+            (concat (match-string 3 ξstr) "-0" (match-string 1 ξstr) "-" (match-string 2 ξstr)))
 
            ;; USA convention of mm/dd/yy
            ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" ξstr)
-            (concat (format-time-string "%C") (match-string 3 ξstr) "-" (match-string 1 ξstr) "-" (match-string 2 ξstr))
-            )
+            (concat (format-time-string "%C") (match-string 3 ξstr) "-" (match-string 1 ξstr) "-" (match-string 2 ξstr)))
            ;; USA convention of m/dd/yy
            ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" ξstr)
-            (concat (format-time-string "%C") (match-string 3 ξstr) "-0" (match-string 1 ξstr) "-" (match-string 2 ξstr))
-            )
+            (concat (format-time-string "%C") (match-string 3 ξstr) "-0" (match-string 1 ξstr) "-" (match-string 2 ξstr)))
 
            ;; yyyy/mm/dd
            ((string-match "\\([0-9][0-9][0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" ξstr)
-            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr) "-" (match-string 3 ξstr))
-            )
+            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr) "-" (match-string 3 ξstr)))
 
            ;; some ISO 8601. yyyy-mm-ddThh:mm
            ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T[0-9][0-9]:[0-9][0-9]" ξstr)
-            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr) "-" (match-string 3 ξstr))
-            )
+            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr) "-" (match-string 3 ξstr)))
            ;; some ISO 8601. yyyy-mm-dd
            ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)" ξstr)
-            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr) "-" (match-string 3 ξstr))
-            )
+            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr) "-" (match-string 3 ξstr)))
            ;; some ISO 8601. yyyy-mm
            ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)" ξstr)
-            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr))
-            )
+            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr)))
 
            ;; else
            (t
@@ -608,14 +578,14 @@ Code detail: URL `http://ergoemacs.org/emacs/elisp_parse_time.html'"
                 (setq ξdate (nth 3 dateList))
 
                 (setq ξyyyy (number-to-string ξyear))
-                (setq ξmm (if ξmonth (format "%02d" ξmonth) "" ) )
-                (setq ξdd (if ξdate (format "%02d" ξdate) "" ) )
-                (concat ξyyyy "-" ξmm "-" ξdd) ) ) ) ) )
+                (setq ξmm (if ξmonth (format "%02d" ξmonth) "" ))
+                (setq ξdd (if ξdate (format "%02d" ξdate) "" ))
+                (concat ξyyyy "-" ξmm "-" ξdd))))))
 
     (if workOnRegionP
-        (progn (delete-region  (elt φfrom-to 0) (elt φfrom-to 1) )
-               (insert ξstr) )
-      ξstr ) ))
+        (progn (delete-region  (elt φfrom-to 0) (elt φfrom-to 1))
+               (insert ξstr))
+      ξstr )))
 
 
 
