@@ -11,25 +11,8 @@
 ;;; DESCRIPTION
 
 ;; this package is some misc emacs lisp utility.
-;; It provides the following functions:
-
-;; unit-at-cursor (unit)
-;; get-selection-or-unit (unit)
-;; get-image-dimensions (φfile-path)
-;; get-image-dimensions-imk (img-file-path)
-;; get-string-from-file (filePath)
-;; read-lines (filePath)
-;; delete-files-by-regex (φdir regex-pattern)
-;; file-relative-name-emacs24.1.1-fix (φfilePath φdirPath)
-;; trim-string (string)
-;; substract-path (path1 path2)
-;; hash-to-list (hashtable)
-;; asciify-text (φstring &optional φfrom φto)
-;; title-case-string-region-or-line (φstring &optional φregion-boundary)
-;; insert-date (&optional addTimeStamp-p)
-;; current-date-time-string ()
-;; is-datetimestamp-p (inputString)
-;; fix-datetimestamp (φinput-string &optional φfrom-to)
+;; call list-matching-lines with “defun ”
+;; to see a list of functions defined
 
 ;; The most used two are “unit-at-cursor” and “get-selection-or-unit”. They are intended as improvemnt of “thing-at-point”. For detailed discussion, see:〈Emacs Lisp: get-selection-or-unit〉 @ http://ergoemacs.org/emacs/elisp_get-selection-or-unit.html
 
@@ -44,6 +27,7 @@
 
 ;;; HISTORY
 
+;; 2014-08-20 changes are no longer logged here. See git log instead. This is a hobby code, don't have time to write details.
 ;; version 1.4.21, 2014-04-24 modified some inline doc to reflect emacs 24.4's new functions
 ;; version 1.4.20, 2014-01-21 “unit-at-cursor” with 'filepath argument now also consider single quote as delimiter
 ;; version 1.4.19, 2013-05-10 “get-html-file-title” moved to xah-html-mode.el and name is now “xhm-get-html-file-title”
@@ -196,6 +180,50 @@ Example usage:
       (let ((p1 (region-beginning)) (p2 (region-end)))
         (vector (buffer-substring-no-properties p1 p2) p1 p2 ))
     (unit-at-cursor φunit)))
+
+
+
+(defun xah-filter-list (φpredicate φlist)
+  "Return a new list such that φpredicate is true on all members of φlist."
+  (let ((ξresult (mapcar (lambda (ξx) (if (funcall φpredicate ξx) ξx nil )) φlist)))
+    (setq ξresult (delete nil ξresult))
+    ξresult
+    ))
+
+;; (xah-string-match-in-list-p
+;; "/home/xah/web/xahlee_info/css_2.1_spec/propidx.html"
+;;  '("/home/xah/web/xahlee_info/php/php_install.html"
+;; "/home/xah/web/xahlee_info/css_2.1_spec/"
+;; "/home/xah/web/xahlee_info/php/keyed_list.html"
+;; "/home/xah/web/xahlee_info/php/mysql.html"
+;; "/home/xah/web/xahlee_info/php/misc.html" )
+;; "yes"
+;; nil)
+
+(defun xah-string-match-in-list-p (φstr φlist-of-string φmatch-case-p &optional φreverse-match-p)
+  "Return the first element in φlist-of-string if φstr occur in φlist-of-string, else false.
+
+if φreverse-match-p is true, change the direction of match. That is, true if any element in φlist-of-string occur in φstr.
+
+φmatch-case-p determines whether case is literal for the match.
+No regex is used.
+Existing match data is changed. Wrap it with `save-match-data' if you need it restored."
+  (let ((case-fold-search (not φmatch-case-p)))
+    (if φreverse-match-p
+        (progn
+          (catch 'myTagName
+            (mapc
+             (lambda (ξx)
+               (when (string-match (regexp-quote ξx) φstr ) (throw 'myTagName ξx)))
+             φlist-of-string)
+            nil))
+      (progn
+        (catch 'myTagName
+          (mapc
+           (lambda (ξx)
+             (when (string-match (regexp-quote φstr) ξx ) (throw 'myTagName ξx)))
+           φlist-of-string)
+          nil)))))
 
 
 
