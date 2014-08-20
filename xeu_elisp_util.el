@@ -184,9 +184,10 @@ Example usage:
 
 
 (defun xah-filter-list (φpredicate φlist)
-  "Return a new list such that φpredicate is true on all members of φlist."
-  (let ((ξresult (mapcar (lambda (ξx) (if (funcall φpredicate ξx) ξx nil )) φlist)))
-    (setq ξresult (delete nil ξresult))
+  "Return a new list such that φpredicate is true on all members of φlist.
+Note: φlist should not have a element equal to the string \"e3824ad41f2ec1ed\"."
+  (let ((ξresult (mapcar (lambda (ξx) (if (funcall φpredicate ξx) ξx "e3824ad41f2ec1ed" )) φlist)))
+    (setq ξresult (delete "e3824ad41f2ec1ed" ξresult))
     ξresult
     ))
 
