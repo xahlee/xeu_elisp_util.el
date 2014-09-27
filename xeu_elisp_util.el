@@ -454,6 +454,7 @@ When called in a elisp program, if φregion-boundary is nil, returns the changed
                     [" Vs " " vs "]
                     [" With " " with "]
                     [" From " " from "]
+                    ["'S " "'s "]
                     ))
         (workOnStringP (if φregion-boundary nil t ))
         (p1 (elt φregion-boundary 0))
