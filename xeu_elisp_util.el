@@ -368,8 +368,7 @@ See also, emacs 24.4's new functions.
 
 
 (defun xah-asciify-region (&optional φfrom φto)
-  "Change some Unicode characters into equivalent ASCII ones.
-For example, “passé” becomes “passe”.
+  "Change some Unicode characters into equivalent ASCII ones, ⁖ “café” ⇒ “cafe”.
 
 This command does not transcode arbitrary Unicode chars (such as Greek, math symbols).  Un-transformed unicode char remains in the string.
 
