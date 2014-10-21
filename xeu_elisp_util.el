@@ -327,8 +327,11 @@ GNU Emacs 24.1.1 (i386-mingw-nt6.1.7601) of 2012-06-10 on MARVIN
    (replace-regexp-in-string "\\`C:/" "c:/" φfile-path  "FIXEDCASE" "LITERAL") φdir-path ))
 
 
+
+;; (require 'subr-x)
+
 (defun trim-string (φstring)
-  "Remove white spaces in beginning and ending of ΦSTRING.
+  "Remove white spaces in beginning and ending of φstring.
 White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
 
 Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You need to (require 'subr-x).
@@ -364,44 +367,52 @@ See also, emacs 24.4's new functions.
 
 
 
-(defun asciify-text (φstring &optional φfrom ξto)
+(defun xah-asciify-region (&optional φfrom φto)
   "Change some Unicode characters into equivalent ASCII ones.
 For example, “passé” becomes “passe”.
 
 This function works on chars in European languages, and does not transcode arbitrary Unicode chars (such as Greek, math symbols).  Un-transformed unicode char remains in the string.
 
-When called interactively, work on text selection or current block.
-
-When called in lisp code, if φfrom is nil, returns a changed string, else, change text in the region between positions φfrom ξto."
+When called interactively, work on text selection or current line.
+Version 2014-10-20"
   (interactive
    (if (use-region-p)
-       (list nil (region-beginning) (region-end))
-     (let ((bds (bounds-of-thing-at-point 'paragraph)))
-       (list nil (car bds) (cdr bds)))))
+       (list (region-beginning) (region-end))
+     (list (line-beginning-position) (line-end-position))))
+  (let ((ξinputStr (buffer-substring-no-properties φfrom φto))
+        (ξcharChangeMap [
+                         ["á\\|à\\|â\\|ä\\|ã\\|å" "a"]
+                         ["é\\|è\\|ê\\|ë" "e"]
+                         ["í\\|ì\\|î\\|ï" "i"]
+                         ["ó\\|ò\\|ô\\|ö\\|õ\\|ø" "o"]
+                         ["ú\\|ù\\|û\\|ü"     "u"]
+                         ["Ý\\|ý\\|ÿ"     "y"]
+                         ["ñ" "n"]
+                         ["ç" "c"]
+                         ["ð" "d"]
+                         ["þ" "th"]
+                         ["ß" "ss"]
+                         ["æ" "ae"]
+                         ]))
+    (let ((case-fold-search t))
+        (save-restriction
+          (narrow-to-region φfrom φto)
+          (mapc
+           (lambda (ξcurrentPair)
+             (goto-char (point-min))
+             (while (search-forward-regexp (elt ξcurrentPair 0) (point-max) t)
+               (replace-match (elt ξcurrentPair 1))))
+           ξcharChangeMap)))))
 
-  (require 'xfrp_find_replace_pairs)
-
-  (let (workOnStringP
-        inputStr
-        (charChangeMap [
-                        ["á\\|à\\|â\\|ä\\|ã\\|å" "a"]
-                        ["é\\|è\\|ê\\|ë" "e"]
-                        ["í\\|ì\\|î\\|ï" "i"]
-                        ["ó\\|ò\\|ô\\|ö\\|õ\\|ø" "o"]
-                        ["ú\\|ù\\|û\\|ü"     "u"]
-                        ["Ý\\|ý\\|ÿ"     "y"]
-                        ["ñ" "n"]
-                        ["ç" "c"]
-                        ["ð" "d"]
-                        ["þ" "th"]
-                        ["ß" "ss"]
-                        ["æ" "ae"]
-                        ]))
-    (setq workOnStringP (if φfrom nil t))
-    (setq inputStr (if workOnStringP φstring (buffer-substring-no-properties φfrom ξto)))
-    (if workOnStringP
-        (let ((case-fold-search t)) (replace-regexp-pairs-in-string inputStr charChangeMap))
-      (let ((case-fold-search t)) (replace-regexp-pairs-region φfrom ξto charChangeMap)))) )
+(defun xah-asciify-string (φstring)
+  "Change some Unicode characters into equivalent ASCII ones.
+For example, “passé” becomes “passe”.
+See `xah-asciify-region'
+Version 2014-10-20"
+  (with-temp-buffer 
+      (insert φstring)
+      (xah-asciify-region (point-min) (point-max))
+      (buffer-string)))
 
 ;; (defun asciify-text-iconv ()
 ;; "Convert STRING to ASCII string.
