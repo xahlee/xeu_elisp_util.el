@@ -371,16 +371,16 @@ See also, emacs 24.4's new functions.
   "Change some Unicode characters into equivalent ASCII ones.
 For example, “passé” becomes “passe”.
 
-This function works on chars in European languages, and does not transcode arbitrary Unicode chars (such as Greek, math symbols).  Un-transformed unicode char remains in the string.
+This command does not transcode arbitrary Unicode chars (such as Greek, math symbols).  Un-transformed unicode char remains in the string.
 
 When called interactively, work on text selection or current line.
+URL `http://ergoemacs.org/emacs/emacs_zap_gremlins.html'
 Version 2014-10-20"
   (interactive
    (if (use-region-p)
        (list (region-beginning) (region-end))
      (list (line-beginning-position) (line-end-position))))
-  (let ((ξinputStr (buffer-substring-no-properties φfrom φto))
-        (ξcharChangeMap [
+  (let ((ξcharMap [
                          ["á\\|à\\|â\\|ä\\|ã\\|å" "a"]
                          ["é\\|è\\|ê\\|ë" "e"]
                          ["í\\|ì\\|î\\|ï" "i"]
@@ -398,14 +398,14 @@ Version 2014-10-20"
         (save-restriction
           (narrow-to-region φfrom φto)
           (mapc
-           (lambda (ξcurrentPair)
+           (lambda (ξpair)
              (goto-char (point-min))
-             (while (search-forward-regexp (elt ξcurrentPair 0) (point-max) t)
-               (replace-match (elt ξcurrentPair 1))))
-           ξcharChangeMap)))))
+             (while (search-forward-regexp (elt ξpair 0) (point-max) t)
+               (replace-match (elt ξpair 1))))
+           ξcharMap)))))
 
 (defun xah-asciify-string (φstring)
-  "Change some Unicode characters into equivalent ASCII ones.
+  "Change some Unicode characters in φstring to equivalent ASCII ones.
 For example, “passé” becomes “passe”.
 See `xah-asciify-region'
 Version 2014-10-20"
