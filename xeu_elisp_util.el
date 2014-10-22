@@ -368,9 +368,9 @@ See also, emacs 24.4's new functions.
 
 
 (defun xah-asciify-region (&optional φfrom φto)
-  "Change some Unicode characters into equivalent ASCII ones, ⁖ “café” ⇒ “cafe”.
+  "Change European language characters into equivalent ASCII ones, ⁖ “café” ⇒ “cafe”.
 
-This command does not transcode arbitrary Unicode chars (such as Greek, math symbols).  Un-transformed unicode char remains in the string.
+This command does not transcode all Unicode chars such as Greek, math symbols. They remains.
 
 When called interactively, work on text selection or current line.
 URL `http://ergoemacs.org/emacs/emacs_zap_gremlins.html'
@@ -404,8 +404,7 @@ Version 2014-10-20"
            ξcharMap)))))
 
 (defun xah-asciify-string (φstring)
-  "Change some Unicode characters in φstring to equivalent ASCII ones.
-For example, “passé” becomes “passe”.
+  "Returns a new string. European language chars are changed ot ASCII ones ⁖ “café” ⇒ “cafe”. 
 See `xah-asciify-region'
 Version 2014-10-20"
   (with-temp-buffer 
