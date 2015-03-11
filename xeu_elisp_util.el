@@ -308,7 +308,7 @@ See also: `get-image-dimensions'."
 ;   (find-lisp-find-files φdir φregex)) )
 
 (defun delete-files-by-regex (φdir φregex)
-  "Delete files in a φdir whose file name (not full path) matches a φregex.
+  "Delete files in φdir whose file name (not full path) matches regex φregex.
  Example:
   (delete-files-by-regex \"~/web\" \"~$\") ; remove files ending in ~
 "
@@ -369,22 +369,21 @@ See also, emacs 24.4's new functions.
 
 (defun xah-asciify-region (&optional φfrom φto)
   "Change European language characters into equivalent ASCII ones, ⁖ “café” ⇒ “cafe”.
+When called interactively, work on current line or text selection.
 
-This command does not transcode all Unicode chars such as Greek, math symbols. They remains.
-
-When called interactively, work on text selection or current line.
 URL `http://ergoemacs.org/emacs/emacs_zap_gremlins.html'
-Version 2014-10-20"
+Version 2015-01-20"
   (interactive
    (if (use-region-p)
        (list (region-beginning) (region-end))
      (list (line-beginning-position) (line-end-position))))
   (let ((ξcharMap [
-                         ["á\\|à\\|â\\|ä\\|ã\\|å" "a"]
-                         ["é\\|è\\|ê\\|ë" "e"]
-                         ["í\\|ì\\|î\\|ï" "i"]
-                         ["ó\\|ò\\|ô\\|ö\\|õ\\|ø" "o"]
-                         ["ú\\|ù\\|û\\|ü"     "u"]
+
+                         ["á\\|à\\|â\\|ä\\|ã\\|å\\|ā" "a"]
+                         ["é\\|è\\|ê\\|ë\\|ē" "e"]
+                         ["í\\|ì\\|î\\|ï\\|ī" "i"]
+                         ["ó\\|ò\\|ô\\|ö\\|õ\\|ø\\|ō" "o"]
+                         ["ú\\|ù\\|û\\|ü\\|ū"     "u"]
                          ["Ý\\|ý\\|ÿ"     "y"]
                          ["ñ" "n"]
                          ["ç" "c"]
@@ -404,10 +403,10 @@ Version 2014-10-20"
            ξcharMap)))))
 
 (defun xah-asciify-string (φstring)
-  "Returns a new string. European language chars are changed ot ASCII ones ⁖ “café” ⇒ “cafe”. 
+  "Returns a new string. European language chars are changed ot ASCII ones ⁖ “café” ⇒ “cafe”.
 See `xah-asciify-region'
 Version 2014-10-20"
-  (with-temp-buffer 
+  (with-temp-buffer
       (insert φstring)
       (xah-asciify-region (point-min) (point-max))
       (buffer-string)))
@@ -431,15 +430,16 @@ Version 2014-10-20"
 ;;     (call-process-region (point-min) (point-max) "iconv" t t nil "--to-code=ASCII//TRANSLIT")
 ;;     (buffer-substring-no-properties (point-min) (point-max))))
 
-(defun title-case-string-region-or-line (φstring &optional φregion-boundary)
+(defun xah-title-case-string-region-or-line (φp1 φp2)
   "Capitalize the current line or text selection, following title conventions.
 
 Capitalize first letter of each word, except words like {to, of, the, a, in, or, and, …}. If a word already contains cap letters such as HTTP, URL, they are left as is.
 
-When called in a elisp program, if φregion-boundary is nil, returns the changed φstring, else, work on the region. φregion-boundary is a pair [from to], it can be a vector or list."
+When called in a elisp program, φp1 φp2 are region boundaries."
   (interactive
-   (let ((bds (get-selection-or-unit 'line)))
-     (list nil (vector (elt bds 1) (elt bds 2)))))
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (list (line-beginning-position) (line-end-position))))
 
   (let (
         (strPairs '(
@@ -464,20 +464,13 @@ When called in a elisp program, if φregion-boundary is nil, returns the changed
                     [" With " " with "]
                     [" From " " from "]
                     ["'S " "'s "]
-                    ))
-        (workOnStringP (if φregion-boundary nil t ))
-        (p1 (elt φregion-boundary 0))
-        (p2 (elt φregion-boundary 1)))
+                    )))
 
     (let ((case-fold-search nil))
-      (if workOnStringP
-          (progn
-            (replace-pairs-in-string-recursive (upcase-initials φstring) strPairs))
-        (progn
-          (save-restriction
-            (narrow-to-region p1 p2)
-            (upcase-initials-region (point-min) (point-max))
-            (replace-regexp-pairs-region (point-min) (point-max) strPairs t t)))))))
+      (save-restriction
+        (narrow-to-region φp1 φp2)
+        (upcase-initials-region (point-min) (point-max))
+        (replace-regexp-pairs-region (point-min) (point-max) strPairs t t)))))
 
 
 
