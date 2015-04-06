@@ -430,19 +430,21 @@ Version 2014-10-20"
 ;;     (call-process-region (point-min) (point-max) "iconv" t t nil "--to-code=ASCII//TRANSLIT")
 ;;     (buffer-substring-no-properties (point-min) (point-max))))
 
-(defun xah-title-case-string-region-or-line (φp1 φp2)
-  "Capitalize the current line or text selection, following title conventions.
+(defun xah-title-case-region-or-line (φp1 φp2)
+  "Title case text between nearest brackets, or current line, or text selection.
 
 Capitalize first letter of each word, except words like {to, of, the, a, in, or, and, …}. If a word already contains cap letters such as HTTP, URL, they are left as is.
 
-When called in a elisp program, φp1 φp2 are region boundaries."
+When called in a elisp program, φp1 φp2 are region boundaries.
+URL `http://ergoemacs.org/emacs/elisp_title_case_text.html'
+Version 2015-04-06"
   (interactive
    (if (use-region-p)
        (list (region-beginning) (region-end))
      (list (line-beginning-position) (line-end-position))))
 
   (let (
-        (strPairs '(
+        (ξstrPairs '(
                     [" A " " a "]
                     [" And " " and "]
                     [" At " " at "]
@@ -464,13 +466,22 @@ When called in a elisp program, φp1 φp2 are region boundaries."
                     [" With " " with "]
                     [" From " " from "]
                     ["'S " "'s "]
-                    )))
+                    ))
+        ξp1
+        ξp2
+        (ξskipChars "^\"<>(){}[]“”‘’‹›«»「」『』【】〖〗《》〈〉〔〕"))
+
+    (progn
+      (skip-chars-backward ξskipChars)
+      (setq ξp1 (point))
+      (skip-chars-forward ξskipChars)
+      (setq ξp2 (point)))
 
     (let ((case-fold-search nil))
       (save-restriction
-        (narrow-to-region φp1 φp2)
+        (narrow-to-region ξp1 ξp2)
         (upcase-initials-region (point-min) (point-max))
-        (replace-regexp-pairs-region (point-min) (point-max) strPairs t t)))))
+        (replace-regexp-pairs-region (point-min) (point-max) ξstrPairs t t)))))
 
 
 
