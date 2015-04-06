@@ -441,45 +441,45 @@ Version 2015-04-06"
   (interactive
    (if (use-region-p)
        (list (region-beginning) (region-end))
-     (list (line-beginning-position) (line-end-position))))
+     (let ( 
+           ξp1
+           ξp2
+           (ξskipChars "^\"<>(){}[]“”‘’‹›«»「」『』【】〖〗《》〈〉〔〕"))
+       (progn
+         (skip-chars-backward ξskipChars (line-beginning-position))
+         (setq ξp1 (point))
+         (skip-chars-forward ξskipChars (line-end-position))
+         (setq ξp2 (point)))
+       (list ξp1 ξp2))))
 
   (let (
         (ξstrPairs '(
-                    [" A " " a "]
-                    [" And " " and "]
-                    [" At " " at "]
-                    [" As " " as "]
-                    [" By " " by "]
-                    [" Be " " be "]
-                    [" Into " " into "]
-                    [" In " " in "]
-                    [" Is " " is "]
-                    [" It " " it "]
-                    [" For " " for "]
-                    [" Of " " of "]
-                    [" Or " " or "]
-                    [" On " " on "]
-                    [" The " " the "]
-                    [" That " " that "]
-                    [" To " " to "]
-                    [" Vs " " vs "]
-                    [" With " " with "]
-                    [" From " " from "]
-                    ["'S " "'s "]
-                    ))
-        ξp1
-        ξp2
-        (ξskipChars "^\"<>(){}[]“”‘’‹›«»「」『』【】〖〗《》〈〉〔〕"))
-
-    (progn
-      (skip-chars-backward ξskipChars)
-      (setq ξp1 (point))
-      (skip-chars-forward ξskipChars)
-      (setq ξp2 (point)))
-
+                     [" A " " a "]
+                     [" And " " and "]
+                     [" At " " at "]
+                     [" As " " as "]
+                     [" By " " by "]
+                     [" Be " " be "]
+                     [" Into " " into "]
+                     [" In " " in "]
+                     [" Is " " is "]
+                     [" It " " it "]
+                     [" For " " for "]
+                     [" Of " " of "]
+                     [" Or " " or "]
+                     [" On " " on "]
+                     [" The " " the "]
+                     [" That " " that "]
+                     [" To " " to "]
+                     [" Vs " " vs "]
+                     [" With " " with "]
+                     [" From " " from "]
+                     ["'S " "'s "]
+                     )))
+    
     (let ((case-fold-search nil))
       (save-restriction
-        (narrow-to-region ξp1 ξp2)
+        (narrow-to-region φp1 φp2)
         (upcase-initials-region (point-min) (point-max))
         (replace-regexp-pairs-region (point-min) (point-max) ξstrPairs t t)))))
 
