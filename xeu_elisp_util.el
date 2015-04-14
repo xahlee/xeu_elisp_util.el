@@ -482,7 +482,7 @@ If the string contains any month names, weekday names, or of the form dddd-dd-dd
          ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" φinput-string) t)
          (t nil) ))
 
-(defun fix-datetimestamp (φinput-string &optional φfrom-to)
+(defun xah-fix-datetime-stamp (φinput-string &optional φfrom-to)
   "Change timestamp under cursor into a yyyy-mm-dd format.
 If there's a text selection, use that as input, else use current line.
 
@@ -498,14 +498,13 @@ When called in lisp program, the optional second argument “φfrom-to” is a v
 If “φfrom-to” is non-nil, the region is taken as input (and “φinput-string” is ignored).
 
 Code detail: URL `http://ergoemacs.org/emacs/elisp_parse_time.html'"
-  (interactive
-   (progn
-     (require 'xeu_elisp_util)
-     (let ((bds (get-selection-or-unit 'line)))
-       (list nil (vector (elt bds 1) (elt bds 2))))))
+
+(interactive
+   (list nil (vector (line-beginning-position) (line-end-position))))
+
   (let (
         (ξstr (if φfrom-to (buffer-substring-no-properties (elt φfrom-to 0) (elt φfrom-to 1)) φinput-string))
-        (workOnRegionP (if φfrom-to t nil)))
+        (ξwork-on-region-p (if φfrom-to t nil)))
     (require 'parse-time)
 
     (setq ξstr (replace-regexp-in-string "^ *\\(.+\\) *$" "\\1" ξstr)) ; remove white spaces
@@ -572,7 +571,7 @@ Code detail: URL `http://ergoemacs.org/emacs/elisp_parse_time.html'"
                 (setq ξdd (if ξdate (format "%02d" ξdate) "" ))
                 (concat ξyyyy "-" ξmm "-" ξdd))))))
 
-    (if workOnRegionP
+    (if ξwork-on-region-p
         (progn (delete-region  (elt φfrom-to 0) (elt φfrom-to 1))
                (insert ξstr))
       ξstr )))
