@@ -352,6 +352,24 @@ This is the roughly the same as emacs 24.4's `string-remove-prefix'.
         (substring φpath1 p2length)
       (error "error 34689: beginning doesn't match: 「%s」 「%s」" φpath1 φpath2))))
 
+(defun xah-hash-to-list (hash-table)
+  "Return a list that represent the HASH-TABLE
+Each element is a list: (list key value).
+
+See also, emacs 24.4's new functions.
+ (require 'subr-x)
+ `hash-table-keys'
+ `hash-table-values'
+
+http://ergoemacs.org/emacs/elisp_hash_table.html
+Version 2015-04-25"
+  (let (result)
+    (maphash
+     (lambda (k v)
+       (push (list k v) result))
+     hash-table)
+    result))
+
 
 
 (defun xah-asciify-region (&optional φfrom φto)
