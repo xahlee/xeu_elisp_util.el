@@ -352,19 +352,6 @@ This is the roughly the same as emacs 24.4's `string-remove-prefix'.
         (substring φpath1 p2length)
       (error "error 34689: beginning doesn't match: 「%s」 「%s」" φpath1 φpath2))))
 
-(defun hash-to-list (φhashtable)
-  "Return a list that represent the φhashtable.
-Each element is a list: (list key value).
-
-See also, emacs 24.4's new functions.
- (require 'subr-x)
- `hash-table-keys'
- `hash-table-values'
-"
-  (let (mylist)
-    (maphash (lambda (kk vv) (setq mylist (cons (list kk vv) mylist))) φhashtable)
-    mylist))
-
 
 
 (defun xah-asciify-region (&optional φfrom φto)
@@ -497,7 +484,8 @@ For example:
 When called in lisp program, the optional second argument “φfrom-to” is a vector [from to] of region boundary. (it can also be a list)
 If “φfrom-to” is non-nil, the region is taken as input (and “φinput-string” is ignored).
 
-Code detail: URL `http://ergoemacs.org/emacs/elisp_parse_time.html'"
+URL `http://ergoemacs.org/emacs/elisp_parse_time.html'
+Version 2015-04-14"
 
 (interactive
    (list nil (vector (line-beginning-position) (line-end-position))))
