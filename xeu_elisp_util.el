@@ -16,13 +16,9 @@
 
 ;; The most used two are “unit-at-cursor” and “get-selection-or-unit”. They are intended as improvemnt of “thing-at-point”. For detailed discussion, see:〈Emacs Lisp: get-selection-or-unit〉 @ http://ergoemacs.org/emacs/elisp_get-selection-or-unit.html
 
-;; This package requires 〔xfrp_find_replace_pairs.el〕
-;; donate $3 please. Paypal to xah@xahlee.org , thanks.
-
 ;;; INSTALL
 
 ;; Place the file in your emacs load path. Then
-;; (require 'xfrp_find_replace_pairs)
 ;; (require 'xeu_elisp_util)
 
 ;;; HISTORY
@@ -30,7 +26,7 @@
 ;; 2014-08-20 changes are no longer logged here. See git log instead. This is a hobby code, don't have time to write details.
 ;; version 1.4.21, 2014-04-24 modified some inline doc to reflect emacs 24.4's new functions
 ;; version 1.4.20, 2014-01-21 “unit-at-cursor” with 'filepath argument now also consider single quote as delimiter
-;; version 1.4.19, 2013-05-10 “get-html-file-title” moved to xah-html-mode.el and name is now “xhm-get-html-file-title”
+;; version 1.4.19, 2013-05-10 “get-html-file-title” moved to xah-html-mode.el and name is now “xah-html-get-html-file-title”
 ;; version 1.4.18, 2013-02-22 removed delete-subdirs-by-regex and delete-files-by-regex . These are either buggy or very inefficient. Pending work.
 ;; version 1.4.17, 2013-01-27 for unit-at-cursor for arg 'filepath, added no-break space as delimiter.
 ;; version 1.4.16, 2012-12-29 changed implementation for unit-at-cursor for arg 'filepath
@@ -47,7 +43,7 @@
 ;; version 1.4.5, 2011-11-14 corrected a critical error in “asciify-text”.
 ;; version 1.4.4, 2011-11-14 added function “asciify-text”.
 ;; version 1.4.3, 2011-11-06 unit-at-cursor with 「'block」 argument will work when the text block is at beginning/end of buffer. Also, lines with just space or tab is also considered a empty line.
-;; version 1.4.2, 2011-10-30 trivial implementation change on “xhm-get-html-file-title”. No user visible effect.
+;; version 1.4.2, 2011-10-30 trivial implementation change on “xah-html-get-html-file-title”. No user visible effect.
 ;; version 1.4.1, 2011-09-29 fixed a error in “trim-string”.
 ;; version 1.4, 2011-09-16 added “trim-string”.
 ;; version 1.3, 2011-08-27 fixed a bug in “unit-at-cursor” when argument is 「'block」. Now it doesn't grab a extra line ending.
@@ -377,35 +373,35 @@ Version 2015-04-25"
 When called interactively, work on current line or text selection.
 
 URL `http://ergoemacs.org/emacs/emacs_zap_gremlins.html'
-Version 2015-01-20"
+Version 2015-05-01"
   (interactive
    (if (use-region-p)
        (list (region-beginning) (region-end))
      (list (line-beginning-position) (line-end-position))))
-  (let ((ξcharMap [
-
-                         ["á\\|à\\|â\\|ä\\|ã\\|å\\|ā" "a"]
-                         ["é\\|è\\|ê\\|ë\\|ē" "e"]
-                         ["í\\|ì\\|î\\|ï\\|ī" "i"]
-                         ["ó\\|ò\\|ô\\|ö\\|õ\\|ø\\|ō" "o"]
-                         ["ú\\|ù\\|û\\|ü\\|ū"     "u"]
-                         ["Ý\\|ý\\|ÿ"     "y"]
-                         ["ñ" "n"]
-                         ["ç" "c"]
-                         ["ð" "d"]
-                         ["þ" "th"]
-                         ["ß" "ss"]
-                         ["æ" "ae"]
-                         ]))
+  (let ((ξcharMap 
+         [
+          ["á\\|à\\|â\\|ä\\|ã\\|å\\|ā\\|ǎ" "a"]
+          ["é\\|è\\|ê\\|ë\\|ē\\|ě" "e"]
+          ["í\\|ì\\|î\\|ï\\|ī\\|ǐ" "i"]
+          ["ó\\|ò\\|ô\\|ö\\|õ\\|ǒ\\|ø\\|ō" "o"]
+          ["ú\\|ù\\|û\\|ü\\|ū"     "u"]
+          ["Ý\\|ý\\|ÿ"     "y"]
+          ["ñ" "n"]
+          ["ç" "c"]
+          ["ð" "d"]
+          ["þ" "th"]
+          ["ß" "ss"]
+          ["æ" "ae"]
+          ]))
     (let ((case-fold-search t))
-        (save-restriction
-          (narrow-to-region φfrom φto)
-          (mapc
-           (lambda (ξpair)
-             (goto-char (point-min))
-             (while (search-forward-regexp (elt ξpair 0) (point-max) t)
-               (replace-match (elt ξpair 1))))
-           ξcharMap)))))
+      (save-restriction
+        (narrow-to-region φfrom φto)
+        (mapc
+         (lambda (ξpair)
+           (goto-char (point-min))
+           (while (search-forward-regexp (elt ξpair 0) (point-max) t)
+             (replace-match (elt ξpair 1))))
+         ξcharMap)))))
 
 (defun xah-asciify-string (φstring)
   "Returns a new string. European language chars are changed ot ASCII ones ⁖ “café” ⇒ “cafe”.
