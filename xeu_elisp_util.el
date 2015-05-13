@@ -36,9 +36,9 @@
 ;; version 1.4.12, 2012-06-30 added “xah-current-date-time-string”. Added 'url, 'filepath to “unit-at-cursor”.
 ;; version 1.4.11, 2012-05-05 added { “delete-subdirs-by-regex” “delete-files-by-regex”}
 ;; version 1.4.10, 2012-05-05 added “substract-path”.
-;; version 1.4.9, 2012-03-15 more trivial improved implementation of “get-image-dimensions-imk”.
-;; version 1.4.8, 2012-03-03 trivially improved implementation of “get-image-dimensions-imk”.
-;; version 1.4.7, 2011-11-26 major change on “get-image-dimensions”. It now supports svn and gif. For gif, it calls “get-image-dimensions-imk”.
+;; version 1.4.9, 2012-03-15 more trivial improved implementation of “xah-get-image-dimensions-imk”.
+;; version 1.4.8, 2012-03-03 trivially improved implementation of “xah-get-image-dimensions-imk”.
+;; version 1.4.7, 2011-11-26 major change on “xah-get-image-dimensions”. It now supports svn and gif. For gif, it calls “xah-get-image-dimensions-imk”.
 ;; version 1.4.6, 2011-11-18 Added a “title-case-string-region-or-line”.
 ;; version 1.4.5, 2011-11-14 corrected a critical error in “asciify-text”.
 ;; version 1.4.4, 2011-11-14 added function “asciify-text”.
@@ -47,7 +47,7 @@
 ;; version 1.4.1, 2011-09-29 fixed a error in “trim-string”.
 ;; version 1.4, 2011-09-16 added “trim-string”.
 ;; version 1.3, 2011-08-27 fixed a bug in “unit-at-cursor” when argument is 「'block」. Now it doesn't grab a extra line ending.
-;; version 1.2, 2011-07-02 inline doc improvement for “get-image-dimensions” “get-image-dimensions-imk”.
+;; version 1.2, 2011-07-02 inline doc improvement for “xah-get-image-dimensions” “xah-get-image-dimensions-imk”.
 ;; version 1.1, 2011-05-28 Added some comment in source code.
 ;; version 1.0, 2011-03-02 First version.
 
@@ -224,14 +224,14 @@ Existing match data is changed. Wrap it with `save-match-data' if you need it re
 
 
 
-(defun get-image-dimensions (φfile-path)
+(defun xah-get-image-dimensions (φfile-path)
   "Returns a image file's width and height as a vector.
 Support png jpg svg gif and any image type emacs supports.
- (for gif, it calls `get-image-dimensions-imk')
+ (for gif, it calls `xah-get-image-dimensions-imk')
 Bug: for large size png, sometimes this returns a wrong dimension 30×30."
   (let (ξx ξy)
     (cond
-     ((string-match "\.gif$" φfile-path) (get-image-dimensions-imk φfile-path))
+     ((string-match "\.gif$" φfile-path) (xah-get-image-dimensions-imk φfile-path))
      ((string-match "\.svg$" φfile-path)
       (with-temp-buffer
         (insert-file-contents φfile-path)
@@ -253,10 +253,10 @@ Bug: for large size png, sometimes this returns a wrong dimension 30×30."
                        t)))
           (vector (car ξxy) (cdr ξxy)))))))
 
-;; (defun get-image-dimensions-imk (φimg-file-path)
+;; (defun xah-get-image-dimensions-imk (φimg-file-path)
 ;;   "Returns a image file's width and height as a vector.
 ;; This function requires ImageMagick's “identify” shell command.
-;; See also: `get-image-dimensions'."
+;; See also: `xah-get-image-dimensions'."
 ;;   (let (cmd-name sh-output width height)
 ;;     (setq cmd-name "identify")
 ;;     (setq sh-output (shell-command-to-string (concat cmd-name " " φimg-file-path)))
@@ -266,10 +266,10 @@ Bug: for large size png, sometimes this returns a wrong dimension 30×30."
 ;;     (setq height (match-string 2 sh-output))
 ;;     (vector (string-to-number width) (string-to-number height))))
 
-(defun get-image-dimensions-imk (φimg-file-path)
+(defun xah-get-image-dimensions-imk (φimg-file-path)
   "Returns a image file's width and height as a vector.
 This function requires ImageMagick's “identify” shell command.
-See also: `get-image-dimensions'."
+See also: `xah-get-image-dimensions'."
   (let ( widthHeightList )
     (setq widthHeightList (split-string (shell-command-to-string (concat "identify -format \"%w %h\" " φimg-file-path))))
     (vector
