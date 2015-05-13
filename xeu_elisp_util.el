@@ -224,14 +224,31 @@ Existing match data is changed. Wrap it with `save-match-data' if you need it re
 
 
 
+(defun xah-windows-style-path-to-unix  (φfpath)
+  "Turn a MS Windows style full path ΦFPATH to unix style.
+Note: This drops the drive letter.
+
+For example:
+ C:\\Users\\xah\\web\\emacs\\emacs.html
+becomes
+ /Users/xah/web/emacs/emacs.html
+
+TODO: The drive letter is removed. Not sure whether that should be part of this function. But emacs 23.2's `file-relative-name' has a bug. It does not work when there's a drive letter is capitalized."
+  (replace-regexp-in-string
+   "\\`[A-Za-z]:" ""
+   (replace-regexp-in-string "\\\\" "/" φfpath t t)))
+
+
+
 (defun xah-get-image-dimensions (φfile-path)
   "Returns a image file's width and height as a vector.
 Support png jpg svg gif and any image type emacs supports.
- (for gif, it calls `xah-get-image-dimensions-imk')
-Bug: for large size png, sometimes this returns a wrong dimension 30×30."
+Bug: for large size png, sometimes this returns a wrong dimension 30×30.
+URL `http://ergoemacs.org/emacs/elisp_image_tag.html'
+Version 2015-05-12"
   (let (ξx ξy)
     (cond
-     ((string-match "\.gif$" φfile-path) (xah-get-image-dimensions-imk φfile-path))
+     ;; ((string-match "\.gif$" φfile-path) (xah-get-image-dimensions-imk φfile-path))
      ((string-match "\.svg$" φfile-path)
       (with-temp-buffer
         (insert-file-contents φfile-path)
@@ -252,19 +269,6 @@ Bug: for large size png, sometimes this returns a wrong dimension 30×30."
                           (concat default-directory φfile-path)))
                        t)))
           (vector (car ξxy) (cdr ξxy)))))))
-
-;; (defun xah-get-image-dimensions-imk (φimg-file-path)
-;;   "Returns a image file's width and height as a vector.
-;; This function requires ImageMagick's “identify” shell command.
-;; See also: `xah-get-image-dimensions'."
-;;   (let (cmd-name sh-output width height)
-;;     (setq cmd-name "identify")
-;;     (setq sh-output (shell-command-to-string (concat cmd-name " " φimg-file-path)))
-;;     ;;  sample output from “identify”:  “xyz.png PNG 520x429+0+0 DirectClass 8-bit 9.1k 0.0u 0:01”
-;;     (string-match "^[^ ]+ [^ ]+ \\([0-9]+\\)x\\([0-9]+\\)" sh-output)
-;;     (setq width (match-string 1 sh-output))
-;;     (setq height (match-string 2 sh-output))
-;;     (vector (string-to-number width) (string-to-number height))))
 
 (defun xah-get-image-dimensions-imk (φimg-file-path)
   "Returns a image file's width and height as a vector.
