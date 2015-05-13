@@ -269,12 +269,18 @@ Bug: for large size png, sometimes this returns a wrong dimension 30×30."
 (defun xah-get-image-dimensions-imk (φimg-file-path)
   "Returns a image file's width and height as a vector.
 This function requires ImageMagick's “identify” shell command.
-See also: `xah-get-image-dimensions'."
-  (let ( widthHeightList )
-    (setq widthHeightList (split-string (shell-command-to-string (concat "identify -format \"%w %h\" " φimg-file-path))))
+See also: `xah-get-image-dimensions'.
+URL `http://ergoemacs.org/emacs/elisp_image_tag.html'
+Version 2015-05-12"
+  (let ((ξwidth-height
+         (split-string
+          (shell-command-to-string
+           (concat
+            "identify -format \"%w %h\" "
+            φimg-file-path)))))
     (vector
-     (string-to-number (elt widthHeightList 0))
-     (string-to-number (elt widthHeightList 1)))))
+     (string-to-number (elt ξwidth-height 0))
+     (string-to-number (elt ξwidth-height 1)))))
 
 
 (defun get-string-from-file (φfile-path)
@@ -378,7 +384,7 @@ Version 2015-05-01"
    (if (use-region-p)
        (list (region-beginning) (region-end))
      (list (line-beginning-position) (line-end-position))))
-  (let ((ξcharMap 
+  (let ((ξcharMap
          [
           ["á\\|à\\|â\\|ä\\|ā\\|ǎ\\|ã\\|å" "a"]
           ["é\\|è\\|ê\\|ë\\|ē\\|ě" "e"]
