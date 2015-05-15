@@ -27,14 +27,14 @@
 ;; version 1.4.21, 2014-04-24 modified some inline doc to reflect emacs 24.4's new functions
 ;; version 1.4.20, 2014-01-21 “unit-at-cursor” with 'filepath argument now also consider single quote as delimiter
 ;; version 1.4.19, 2013-05-10 “get-html-file-title” moved to xah-html-mode.el and name is now “xah-html-get-html-file-title”
-;; version 1.4.18, 2013-02-22 removed delete-subdirs-by-regex and delete-files-by-regex . These are either buggy or very inefficient. Pending work.
+;; version 1.4.18, 2013-02-22 removed delete-subdirs-by-regex and xah-delete-files-by-regex . These are either buggy or very inefficient. Pending work.
 ;; version 1.4.17, 2013-01-27 for unit-at-cursor for arg 'filepath, added no-break space as delimiter.
 ;; version 1.4.16, 2012-12-29 changed implementation for unit-at-cursor for arg 'filepath
-;; version 1.4.15, 2012-08-23 added “file-relative-name-emacs24.1.1-fix”
+;; version 1.4.15, 2012-08-23 added “xah-file-relative-name-emacs24.1.1-fix”
 ;; version 1.4.14, 2012-08-14 added “hash-to-list”.
 ;; version 1.4.13, 2012-07-03 removed curly bracket for 'filepath in “unit-at-cursor”.
 ;; version 1.4.12, 2012-06-30 added “xah-current-date-time-string”. Added 'url, 'filepath to “unit-at-cursor”.
-;; version 1.4.11, 2012-05-05 added { “delete-subdirs-by-regex” “delete-files-by-regex”}
+;; version 1.4.11, 2012-05-05 added { “delete-subdirs-by-regex” “xah-delete-files-by-regex”}
 ;; version 1.4.10, 2012-05-05 added “substract-path”.
 ;; version 1.4.9, 2012-03-15 more trivial improved implementation of “xah-get-image-dimensions-imk”.
 ;; version 1.4.8, 2012-03-03 trivially improved implementation of “xah-get-image-dimensions-imk”.
@@ -287,14 +287,13 @@ Version 2015-05-12"
      (string-to-number (elt ξwidth-height 1)))))
 
 
-(defun get-string-from-file (φfile-path)
+(defun xah-get-string-from-file (φfile-path)
   "Return φfile-path's content."
-;; thanks to “Pascal J Bourguignon” and “TheFlyingDutchman <zzbba...@aol.com>”. 2010-09-02
   (with-temp-buffer
     (insert-file-contents φfile-path)
     (buffer-string)))
 
-(defun read-lines (φfile-path)
+(defun xah-get-file-lines (φfile-path)
   "Return a list of lines of a file at φfile-path."
   (with-temp-buffer
     (insert-file-contents φfile-path)
@@ -313,16 +312,16 @@ Version 2015-05-12"
 ;                  ))
 ;   (find-lisp-find-files φdir φregex)) )
 
-(defun delete-files-by-regex (φdir φregex)
+(defun xah-delete-files-by-regex (φdir φregex)
   "Delete files in φdir whose file name (not full path) matches regex φregex.
  Example:
-  (delete-files-by-regex \"~/web\" \"~$\") ; remove files ending in ~
+  (xah-delete-files-by-regex \"~/web\" \"~$\") ; remove files ending in ~
 "
   (require 'find-lisp)
   (mapc (lambda (ξx) (if (file-regular-p ξx) (delete-file ξx)))
         (find-lisp-find-files φdir φregex)))
 
-(defun file-relative-name-emacs24.1.1-fix (φfile-path φdir-path)
+(defun xah-file-relative-name-emacs24.1.1-fix (φfile-path φdir-path)
   "fix for `file-relative-name'. If path start with cap such as “C:” (Windows file path), it won't work.
 e.g.
  (file-relative-name \"c:/Users/h3/.emacs.d/test.el\" \"c:/Users/h3/.emacs.d/\" )
