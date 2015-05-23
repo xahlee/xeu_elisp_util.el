@@ -17,7 +17,7 @@
 ;; unit-at-cursor
 ;; get-selection-or-unit
 
-;; are renamed and moved to 
+;; are renamed and moved to
 ;; https://github.com/xahlee/xah-get-thing-or-selection/xah-get-thing.el
 ;; /home/xah/git/xah-get-thing-or-selection/
 
@@ -67,13 +67,18 @@
 
 
 
-(defun xah-filter-list (φpredicate φlist)
-  "Return a new list such that φpredicate is true on all members of φlist.
-Note: φlist should not have a element equal to the string \"e3824ad41f2ec1ed\"."
-  (let ((ξresult (mapcar (lambda (ξx) (if (funcall φpredicate ξx) ξx "e3824ad41f2ec1ed" )) φlist)))
-    (setq ξresult (delete "e3824ad41f2ec1ed" ξresult))
-    ξresult
-    ))
+(defun xah-filter-list (φpredicate φsequence)
+  "Return a new list such that φpredicate is true on all members of φsequence.
+URL `http://ergoemacs.org/emacs/elisp_filter_list.html'
+Version 2015-05-23"
+  (delete
+   "e3824ad41f2ec1ed"
+   (mapcar
+    (lambda (ξx)
+      (if (funcall φpredicate ξx)
+          ξx
+        "e3824ad41f2ec1ed" ))
+    φsequence)))
 
 ;; (xah-string-match-in-list-p
 ;; "/home/xah/web/xahlee_info/css_2.1_spec/propidx.html"
