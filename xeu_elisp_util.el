@@ -14,7 +14,14 @@
 ;; call list-matching-lines with “defun ”
 ;; to see a list of functions defined
 
-;; The most used two are “unit-at-cursor” and “get-selection-or-unit”. They are intended as improvemnt of “thing-at-point”. For detailed discussion, see:〈Emacs Lisp: get-selection-or-unit〉 @ http://ergoemacs.org/emacs/elisp_get-selection-or-unit.html
+;; unit-at-cursor
+;; get-selection-or-unit
+
+;; are renamed and moved to 
+;; https://github.com/xahlee/xah-get-thing-or-selection/xah-get-thing.el
+;; /home/xah/git/xah-get-thing-or-selection/
+
+;; see http://ergoemacs.org/emacs/elisp_get-selection-or-unit.html
 
 ;;; INSTALL
 
@@ -54,128 +61,9 @@
 
 ;;; Code:
 
-(defun unit-at-cursor (φunit)
-  "Return the string and boundary of ΦUNIT under cursor.
-
-Returns a vector [text a b], where text is the string and a and b are its boundary.
-
-ΦUNIT can be:
-
-• 'word — sequence of 0 to 9, A to Z, a to z, and hyphen.
-
-• 'glyphs — sequence of visible glyphs. Useful for file name, URL, …, anything doesn't have white spaces in it.
-
-• 'line — delimited by “\\n”. (captured text does not include a ending “\\n”.)
-
-• 'block — delimited by empty lines or beginning/end of buffer. Lines with just spaces or tabs are also considered empty line. (captured text does not include a ending “\\n”.)
-
-• 'buffer — whole buffer. (respects `narrow-to-region')
-
-• 'filepath — delimited by chars that's USUALLY not part of filepath.
-
-• 'url — delimited by chars that's USUALLY not part of URL.
-
-• a vector [beginRegex endRegex] — The elements are regex strings used to determine the beginning/end of boundary chars. They are passed to `skip-chars-backward' and `skip-chars-forward'. For example, if you want paren as delimiter, use [\"^(\" \"^)\"]
-
-Example usage:
- (setq bds (unit-at-cursor 'line))
- (setq inputstr (elt bds 0) p1 (elt bds 1) p2 (elt bds 2)  )
-
-This function is similar to `thing-at-point' and `bounds-of-thing-at-point'.
-The main differences are:
-
-• This function returns the text and the 2 boundaries as a vector in one shot.
-
-• 'line always returns the line without end of line character, avoiding inconsistency when the line is at end of buffer.
-
-• This function's behavior does not depend on syntax table. e.g. for units 「'word」, 「'block」, etc."
-  (let (p1 p2)
-    (save-excursion
-      (cond
-       ( (eq φunit 'word)
-         (let ((wordcharset "-A-Za-z0-9ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"))
-           (skip-chars-backward wordcharset)
-           (setq p1 (point))
-           (skip-chars-forward wordcharset)
-           (setq p2 (point))))
-
-       ( (eq φunit 'glyphs)
-         (progn
-           (skip-chars-backward "[:graph:]")
-           (setq p1 (point))
-           (skip-chars-forward "[:graph:]")
-           (setq p2 (point))))
-
-       ((eq φunit 'buffer)
-        (progn
-          (setq p1 (point-min))
-          (setq p2 (point-max))))
-
-       ((eq φunit 'line)
-        (progn
-          (setq p1 (line-beginning-position))
-          (setq p2 (line-end-position))))
-       ((eq φunit 'block)
-        (progn
-          (if (re-search-backward "\n[ \t]*\n" nil "move")
-              (progn (re-search-forward "\n[ \t]*\n")
-                     (setq p1 (point)))
-            (setq p1 (point)))
-          (if (re-search-forward "\n[ \t]*\n" nil "move")
-              (progn (re-search-backward "\n[ \t]*\n")
-                     (setq p2 (point)))
-            (setq p2 (point)))))
-
-       ((eq φunit 'filepath)
-        (let (p0)
-          (setq p0 (point))
-          ;; chars that are likely to be delimiters of full path, e.g. space, tabs, brakets.
-          (skip-chars-backward "^  \"\t\n'|()[]{}<>〔〕“”〈〉《》【】〖〗«»‹›·。\\`")
-          (setq p1 (point))
-          (goto-char p0)
-          (skip-chars-forward "^  \"\t\n'|()[]{}<>〔〕“”〈〉《》【】〖〗«»‹›·。\\'")
-          (setq p2 (point))))
-
-       ((eq φunit 'url)
-        (let (p0
-              ;; (ξdelimitors "^ \t\n,()[]{}<>〔〕“”\"`'!$^*|\;")
-              (ξdelimitors "!\"#$%&'*+,-./0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~"))
-          (setq p0 (point))
-          (skip-chars-backward ξdelimitors) ;"^ \t\n,([{<>〔“\""
-          (setq p1 (point))
-          (goto-char p0)
-          (skip-chars-forward ξdelimitors) ;"^ \t\n,)]}<>〕\"”"
-          (setq p2 (point))))
-
-       ((vectorp φunit)
-        (let (p0)
-          (setq p0 (point))
-          (skip-chars-backward (elt φunit 0))
-          (setq p1 (point))
-          (goto-char p0)
-          (skip-chars-forward (elt φunit 1))
-          (setq p2 (point))))))
-
-    (vector (buffer-substring-no-properties p1 p2) p1 p2 )))
-
-(defun get-selection-or-unit (φunit)
-  "Return the string and boundary of text selection or ΦUNIT under cursor.
-
-If `use-region-p' is true, then the region is the φunit.  Else,
-it depends on the ΦUNIT. See `unit-at-cursor' for detail about
-ΦUNIT.
-
-Returns a vector [text a b], where text is the string and a and b
-are its boundary.
-
-Example usage:
- (setq bds (get-selection-or-unit 'line))
- (setq inputstr (elt bds 0) p1 (elt bds 1) p2 (elt bds 2)  )"
-  (interactive)
-  (if (use-region-p)
-      (let ((p1 (region-beginning)) (p2 (region-end)))
-        (vector (buffer-substring-no-properties p1 p2) p1 p2 ))
-    (unit-at-cursor φunit)))
+;; (require 'xah-get-thing)
+;; (defalias 'unit-at-cursor 'xah-get-thing-at-cursor)
+;; (defalias 'get-selection-or-unit 'xah-get-thing-or-selection)
 
 
 
