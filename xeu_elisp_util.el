@@ -315,30 +315,11 @@ Version 2015-06-08"
 (defun xah-asciify-string (φstring)
   "Returns a new string. European language chars are changed ot ASCII ones ⁖ “café” ⇒ “cafe”.
 See `xah-asciify-text'
-Version 2014-10-20"
+Version 2015-06-08"
   (with-temp-buffer
       (insert φstring)
       (xah-asciify-text (point-min) (point-max))
       (buffer-string)))
-
-;; (defun asciify-text-iconv ()
-;; "Convert STRING to ASCII string.
-;; For example:
-;;  passé ⇒ passe
-;;  -> ⇒ →
-;; this command calls the Unix iconv program.
-;; Code originally by Teemu Likonen."
-;; (interactive
-;;    (let ((bds (get-selection-or-unit 'block)))
-;;      (list
-;; str (elt bds 0)
-;; p1 (elt bds 1)
-;; p2 (elt bds 2)
-;;   ) ) )
-;;   (with-temp-buffer
-;;     (insert string)
-;;     (call-process-region (point-min) (point-max) "iconv" t t nil "--to-code=ASCII//TRANSLIT")
-;;     (buffer-substring-no-properties (point-min) (point-max))))
 
 
 
