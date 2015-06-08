@@ -314,11 +314,11 @@ Version 2015-06-08"
 
 (defun xah-asciify-string (φstring)
   "Returns a new string. European language chars are changed ot ASCII ones ⁖ “café” ⇒ “cafe”.
-See `xah-asciify-region'
+See `xah-asciify-text'
 Version 2014-10-20"
   (with-temp-buffer
       (insert φstring)
-      (xah-asciify-region (point-min) (point-max))
+      (xah-asciify-text (point-min) (point-max))
       (buffer-string)))
 
 ;; (defun asciify-text-iconv ()
