@@ -134,16 +134,17 @@ TODO: The drive letter is removed. Not sure whether that should be part of this 
 
 
 (defun xah-get-image-dimensions (φfile-path)
-  "Returns a image file's width and height as a vector.
+  "Returns a vector [width height] of a image's dimension.
+The elements are integer datatype.
 Support png jpg svg gif and any image type emacs supports.
-Bug: for large size png, sometimes this returns a wrong dimension 30×30.
 URL `http://ergoemacs.org/emacs/elisp_image_tag.html'
-Version 2015-05-12"
+Version 2015-06-05"
   (let (ξx ξy)
     (cond
      ;; ((string-match "\.gif$" φfile-path) (xah-get-image-dimensions-imk φfile-path))
      ((string-match "\.svg$" φfile-path)
       (with-temp-buffer
+        ;; hackish. grab the first occurence of width height in file
         (insert-file-contents φfile-path)
         (goto-char (point-min))
         (search-forward-regexp "width=\"\\([0-9]+\\).*\"")
@@ -270,20 +271,17 @@ Version 2015-04-25"
 
 
 
-(defun xah-asciify-region (&optional φfrom φto)
+(defun xah-asciify-text (&optional φbegin φend)
   "Change European language characters into equivalent ASCII ones, ⁖ “café” ⇒ “cafe”.
 When called interactively, work on current line or text selection.
 
 URL `http://ergoemacs.org/emacs/emacs_zap_gremlins.html'
-Version 2015-05-01"
-  (interactive
-   (if (use-region-p)
-       (list (region-beginning) (region-end))
-     (list (line-beginning-position) (line-end-position))))
+Version 2015-06-08"
+  (interactive)
   (let ((ξcharMap
          [
-          ["á\\|à\\|â\\|ä\\|ā\\|ǎ\\|ã\\|å" "a"]
-          ["é\\|è\\|ê\\|ë\\|ē\\|ě" "e"]
+          ["á\\|à\\|â\\|ä\\|ā\\|ǎ\\|ã\\|å\\|ą" "a"]
+          ["é\\|è\\|ê\\|ë\\|ē\\|ě\\|ę" "e"]
           ["í\\|ì\\|î\\|ï\\|ī\\|ǐ" "i"]
           ["ó\\|ò\\|ô\\|ö\\|õ\\|ǒ\\|ø\\|ō" "o"]
           ["ú\\|ù\\|û\\|ü\\|ū"     "u"]
@@ -294,10 +292,19 @@ Version 2015-05-01"
           ["þ" "th"]
           ["ß" "ss"]
           ["æ" "ae"]
-          ]))
+          ])
+        ξbegin ξend
+        )
+
+    (if (null φbegin)
+        (if (use-region-p)
+            (progn (setq ξbegin (region-beginning)) (setq ξend (region-end)))
+          (progn (setq ξbegin (line-beginning-position)) (setq ξend (line-end-position))))
+      (progn (setq ξbegin φbegin) (setq ξend φend)))
+
     (let ((case-fold-search t))
       (save-restriction
-        (narrow-to-region φfrom φto)
+        (narrow-to-region ξbegin ξend)
         (mapc
          (lambda (ξpair)
            (goto-char (point-min))
@@ -385,7 +392,7 @@ If the string contains any month names, weekday names, or of the form dddd-dd-dd
          ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" φinput-string) t)
          (t nil) ))
 
-(defun xah-fix-datetime-stamp (φinput-string &optional φfrom-to)
+(defun xah-fix-datetime-stamp (φinput-string &optional φbegin-end)
   "Change timestamp under cursor into a yyyy-mm-dd format.
 If there's a text selection, use that as input, else use current line.
 
@@ -397,8 +404,8 @@ For example:
  「11/28/1994」                     ⇒ 「1994-11-28」
  「1994/11/28」                     ⇒ 「1994-11-28」
 
-When called in lisp program, the optional second argument “φfrom-to” is a vector [from to] of region boundary. (it can also be a list)
-If “φfrom-to” is non-nil, the region is taken as input (and “φinput-string” is ignored).
+When called in lisp program, the optional second argument “φbegin-end” is a vector of region boundary. (it can also be a list)
+If “φbegin-end” is non-nil, the region is taken as input (and “φinput-string” is ignored).
 
 URL `http://ergoemacs.org/emacs/elisp_parse_time.html'
 Version 2015-04-14"
@@ -407,8 +414,8 @@ Version 2015-04-14"
    (list nil (vector (line-beginning-position) (line-end-position))))
 
   (let (
-        (ξstr (if φfrom-to (buffer-substring-no-properties (elt φfrom-to 0) (elt φfrom-to 1)) φinput-string))
-        (ξwork-on-region-p (if φfrom-to t nil)))
+        (ξstr (if φbegin-end (buffer-substring-no-properties (elt φbegin-end 0) (elt φbegin-end 1)) φinput-string))
+        (ξwork-on-region-p (if φbegin-end t nil)))
     (require 'parse-time)
 
     (setq ξstr (replace-regexp-in-string "^ *\\(.+\\) *$" "\\1" ξstr)) ; remove white spaces
@@ -476,7 +483,7 @@ Version 2015-04-14"
                 (concat ξyyyy "-" ξmm "-" ξdd))))))
 
     (if ξwork-on-region-p
-        (progn (delete-region  (elt φfrom-to 0) (elt φfrom-to 1))
+        (progn (delete-region  (elt φbegin-end 0) (elt φbegin-end 1))
                (insert ξstr))
       ξstr )))
 
