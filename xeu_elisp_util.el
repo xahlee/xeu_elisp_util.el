@@ -137,32 +137,37 @@ TODO: The drive letter is removed. Not sure whether that should be part of this 
   "Returns a vector [width height] of a image's dimension.
 The elements are integer datatype.
 Support png jpg svg gif and any image type emacs supports.
+If it's svg, and dimension cannot be determined, it returns [0 0]
 URL `http://ergoemacs.org/emacs/elisp_image_tag.html'
-Version 2015-06-05"
-  (let (ξx ξy)
+Version 2015-06-13"
+  (let ((ξx nil)
+        (ξy nil))
     (cond
-     ;; ((string-match "\.gif$" φfile-path) (xah-get-image-dimensions-imk φfile-path))
      ((string-match "\.svg$" φfile-path)
-      (with-temp-buffer
-        ;; hackish. grab the first occurence of width height in file
-        (insert-file-contents φfile-path)
-        (goto-char (point-min))
-        (search-forward-regexp "width=\"\\([0-9]+\\).*\"")
-        (setq ξx (match-string 1 ))
-        (goto-char (point-min))
-        (search-forward-regexp "height=\"\\([0-9]+\\).*\"")
-        (setq ξy (match-string 1 ))
-        (vector (string-to-number ξx) (string-to-number ξy))))
-     (t (let (ξxy )
-          (progn
-            (clear-image-cache t)
-            (setq ξxy (image-size
-                       (create-image
-                        (if (file-name-absolute-p φfile-path)
-                            φfile-path
-                          (concat default-directory φfile-path)))
-                       t)))
-          (vector (car ξxy) (cdr ξxy)))))))
+      (progn
+        (with-temp-buffer
+          ;; hackish. grab the first occurence of width height in file
+          (insert-file-contents φfile-path)
+          (goto-char (point-min))
+          (when (search-forward-regexp "width=\"\\([0-9]+\\).*\"" nil 'NOERROR)
+            (setq ξx (match-string 1 )))
+          (goto-char (point-min))
+          (if (search-forward-regexp "height=\"\\([0-9]+\\).*\"" nil 'NOERROR)
+              (setq ξy (match-string 1 ))))
+        (if (and (not (null ξx)) (not (null ξy)))
+            (progn (vector (string-to-number ξx) (string-to-number ξy)))
+          (progn [0 0]))))
+     (t
+      (let (ξxy )
+        (progn
+          (clear-image-cache t)
+          (setq ξxy (image-size
+                     (create-image
+                      (if (file-name-absolute-p φfile-path)
+                          φfile-path
+                        (concat default-directory φfile-path)))
+                     t)))
+        (vector (car ξxy) (cdr ξxy)))))))
 
 (defun xah-get-image-dimensions-imk (φimg-file-path)
   "Returns a image file's width and height as a vector.
