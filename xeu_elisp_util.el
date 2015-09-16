@@ -14,14 +14,9 @@
 ;; call list-matching-lines with “defun ”
 ;; to see a list of functions defined
 
-;; unit-at-cursor
-;; get-selection-or-unit
-
+;; unit-at-cursor and get-selection-or-unit
 ;; are renamed and moved to
-;; https://github.com/xahlee/xah-get-thing-or-selection/xah-get-thing.el
-;; /home/xah/git/xah-get-thing-or-selection/
-
-;; see http://ergoemacs.org/emacs/elisp_get-selection-or-unit.html
+;; See: http://ergoemacs.org/emacs/elisp_get-selection-or-unit.html
 
 ;;; INSTALL
 
@@ -30,6 +25,8 @@
 
 ;;; HISTORY
 
+;; 2015-09-16 renamed trim-string to xah-trim-string
+;; 2015-09-16 renamed substract-path to xah-substract-path
 ;; 2014-08-20 changes are no longer logged here. See git log instead. This is a hobby code, don't have time to write details.
 ;; version 1.4.21, 2014-04-24 modified some inline doc to reflect emacs 24.4's new functions
 ;; version 1.4.20, 2014-01-21 “unit-at-cursor” with 'filepath argument now also consider single quote as delimiter
@@ -42,7 +39,7 @@
 ;; version 1.4.13, 2012-07-03 removed curly bracket for 'filepath in “unit-at-cursor”.
 ;; version 1.4.12, 2012-06-30 added “xah-current-date-time-string”. Added 'url, 'filepath to “unit-at-cursor”.
 ;; version 1.4.11, 2012-05-05 added { “delete-subdirs-by-regex” “xah-delete-files-by-regex”}
-;; version 1.4.10, 2012-05-05 added “substract-path”.
+;; version 1.4.10, 2012-05-05 added “xah-substract-path”.
 ;; version 1.4.9, 2012-03-15 more trivial improved implementation of “xah-get-image-dimensions-imk”.
 ;; version 1.4.8, 2012-03-03 trivially improved implementation of “xah-get-image-dimensions-imk”.
 ;; version 1.4.7, 2011-11-26 major change on “xah-get-image-dimensions”. It now supports svn and gif. For gif, it calls “xah-get-image-dimensions-imk”.
@@ -51,8 +48,8 @@
 ;; version 1.4.4, 2011-11-14 added function “asciify-text”.
 ;; version 1.4.3, 2011-11-06 unit-at-cursor with 「'block」 argument will work when the text block is at beginning/end of buffer. Also, lines with just space or tab is also considered a empty line.
 ;; version 1.4.2, 2011-10-30 trivial implementation change on “xah-html-get-html-file-title”. No user visible effect.
-;; version 1.4.1, 2011-09-29 fixed a error in “trim-string”.
-;; version 1.4, 2011-09-16 added “trim-string”.
+;; version 1.4.1, 2011-09-29 fixed a error in “xah-trim-string”.
+;; version 1.4, 2011-09-16 added “xah-trim-string”.
 ;; version 1.3, 2011-08-27 fixed a bug in “unit-at-cursor” when argument is 「'block」. Now it doesn't grab a extra line ending.
 ;; version 1.2, 2011-07-02 inline doc improvement for “xah-get-image-dimensions” “xah-get-image-dimensions-imk”.
 ;; version 1.1, 2011-05-28 Added some comment in source code.
@@ -234,7 +231,7 @@ GNU Emacs 24.1.1 (i386-mingw-nt6.1.7601) of 2012-06-10 on MARVIN
 
 ;; (require 'subr-x)
 
-(defun trim-string (φstring)
+(defun xah-trim-string (φstring)
   "Remove white spaces in beginning and ending of φstring.
 White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
 
@@ -242,18 +239,18 @@ Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You ne
 "
   (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" φstring)))
 
-(defun substract-path (φpath1 φpath2)
+(defun xah-substract-path (φpath1 φpath2)
   "Remove string φpath2 from the beginning of φpath1.
 length of φpath1 ≥ to length φpath2.
 
-⁖  (substract-path \"c:/Users/lisa/web/a/b\" \"c:/Users/lisa/web/\") ⇒ \"a/b\"
+⁖  (xah-substract-path \"c:/Users/lisa/web/a/b\" \"c:/Users/lisa/web/\") ⇒ \"a/b\"
 This is the roughly the same as emacs 24.4's `string-remove-prefix'.
  (require 'subr-x)
  (string-remove-prefix  \"c:/Users/lisa/web/\" \"c:/Users/lisa/web/a/b\" )
 "
-  (let ((p2length (length φpath2)))
-    (if (string= (substring φpath1 0 p2length) φpath2 )
-        (substring φpath1 p2length)
+  (let ((ξp2length (length φpath2)))
+    (if (string= (substring φpath1 0 ξp2length) φpath2 )
+        (substring φpath1 ξp2length)
       (error "error 34689: beginning doesn't match: 「%s」 「%s」" φpath1 φpath2))))
 
 (defun xah-hash-to-list (hash-table)
