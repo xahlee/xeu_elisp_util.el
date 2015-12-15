@@ -243,11 +243,17 @@ Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You ne
   "Remove string φpath2 from the beginning of φpath1.
 length of φpath1 ≥ to length φpath2.
 
-⁖  (xah-substract-path \"c:/Users/lisa/web/a/b\" \"c:/Users/lisa/web/\") ⇒ \"a/b\"
-This is the roughly the same as emacs 24.4's `string-remove-prefix'.
- (require 'subr-x)
- (string-remove-prefix  \"c:/Users/lisa/web/\" \"c:/Users/lisa/web/a/b\" )
-"
+path1
+c:/Users/lisa/web/a/b
+
+path2
+c:/Users/lisa/web/
+
+result
+a/b
+
+This is the similar to emacs 24.4's `string-remove-prefix' from (require 'subr-x).
+Version 2015-12-15"
   (let ((ξp2length (length φpath2)))
     (if (string= (substring φpath1 0 ξp2length) φpath2 )
         (substring φpath1 ξp2length)
