@@ -25,6 +25,7 @@
 
 ;;; HISTORY
 
+;; 2015-09-16 alias 'xah-trim-string to emacs's version when possible
 ;; 2015-09-16 renamed trim-string to xah-trim-string
 ;; 2015-09-16 renamed substract-path to xah-substract-path
 ;; 2014-08-20 changes are no longer logged here. See git log instead. This is a hobby code, don't have time to write details.
@@ -229,15 +230,44 @@ GNU Emacs 24.1.1 (i386-mingw-nt6.1.7601) of 2012-06-10 on MARVIN
 
 
 
-;; (require 'subr-x)
+;; define xah-trim-string, by using emacs's version
+(if (version< emacs-version "24.4")
+    (progn
+      (defsubst string-trim-left (string)
+        "Remove leading whitespace from STRING."
+        (if (string-match "\\`[ \t\n\r]+" string)
+            (replace-match "" t t string)
+          string))
 
-(defun xah-trim-string (φstring)
-  "Remove white spaces in beginning and ending of φstring.
-White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
+      (defsubst string-trim-right (string)
+        "Remove trailing whitespace from STRING."
+        (if (string-match "[ \t\n\r]+\\'" string)
+            (replace-match "" t t string)
+          string))
 
-Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You need to (require 'subr-x).
-"
-  (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" φstring)))
+      (defsubst string-trim (string)
+        "Remove leading and trailing whitespace from STRING."
+        (string-trim-left (string-trim-right string))))
+  (progn
+    (require 'subr-x)
+    (fset 'xah-trim-string 'string-trim)
+    ))
+
+;; (defalias 'xah-trim-string 'string-trim
+;;   "Remove white spaces in beginning and ending of φstring.
+;; White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
+
+;; Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You need to (require 'subr-x).
+;; ")
+
+;; (defun xah-trim-string (φstring)
+;;   "Remove white spaces in beginning and ending of φstring.
+;; White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
+
+;; Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You need to (require 'subr-x).
+;; "
+;;   (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" φstring))
+;; )
 
 (defun xah-substract-path (φpath1 φpath2)
   "Remove string φpath2 from the beginning of φpath1.
