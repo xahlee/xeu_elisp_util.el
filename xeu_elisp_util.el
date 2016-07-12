@@ -65,18 +65,18 @@
 
 
 
-(defun xah-filter-list (φpredicate φsequence)
-  "Return a new list such that φpredicate is true on all members of φsequence.
+(defun xah-filter-list (*predicate *sequence)
+  "Return a new list such that *predicate is true on all members of *sequence.
 URL `http://ergoemacs.org/emacs/elisp_filter_list.html'
 Version 2015-05-23"
   (delete
    "e3824ad41f2ec1ed"
    (mapcar
-    (lambda (ξx)
-      (if (funcall φpredicate ξx)
-          ξx
+    (lambda (-x)
+      (if (funcall *predicate -x)
+          -x
         "e3824ad41f2ec1ed" ))
-    φsequence)))
+    *sequence)))
 
 ;; (xah-string-match-in-list-p
 ;; "/home/xah/web/xahlee_info/css_2.1_spec/propidx.html"
@@ -88,35 +88,35 @@ Version 2015-05-23"
 ;; "yes"
 ;; nil)
 
-(defun xah-string-match-in-list-p (φstr φlist-of-string φmatch-case-p &optional φreverse-match-p)
-  "Return the first element in φlist-of-string if φstr occur in φlist-of-string, else false.
+(defun xah-string-match-in-list-p (*str *list-of-string *match-case-p &optional *reverse-match-p)
+  "Return the first element in *list-of-string if *str occur in *list-of-string, else false.
 
-if φreverse-match-p is true, change the direction of match. That is, true if any element in φlist-of-string occur in φstr.
+if *reverse-match-p is true, change the direction of match. That is, true if any element in *list-of-string occur in *str.
 
-φmatch-case-p determines whether case is literal for the match.
+*match-case-p determines whether case is literal for the match.
 No regex is used.
 Existing match data is changed. Wrap it with `save-match-data' if you need it restored."
-  (let ((case-fold-search (not φmatch-case-p)))
-    (if φreverse-match-p
+  (let ((case-fold-search (not *match-case-p)))
+    (if *reverse-match-p
         (progn
           (catch 'myTagName
             (mapc
-             (lambda (ξx)
-               (when (string-match (regexp-quote ξx) φstr ) (throw 'myTagName ξx)))
-             φlist-of-string)
+             (lambda (-x)
+               (when (string-match (regexp-quote -x) *str ) (throw 'myTagName -x)))
+             *list-of-string)
             nil))
       (progn
         (catch 'myTagName
           (mapc
-           (lambda (ξx)
-             (when (string-match (regexp-quote φstr) ξx ) (throw 'myTagName ξx)))
-           φlist-of-string)
+           (lambda (-x)
+             (when (string-match (regexp-quote *str) -x ) (throw 'myTagName -x)))
+           *list-of-string)
           nil)))))
 
 
 
-(defun xah-windows-style-path-to-unix  (φfpath)
-  "Turn a MS Windows style full path ΦFPATH to unix style.
+(defun xah-windows-style-path-to-unix  (*fpath)
+  "Turn a MS Windows style full path *FPATH to unix style.
 Note: This drops the drive letter.
 
 For example:
@@ -127,98 +127,98 @@ becomes
 TODO: The drive letter is removed. Not sure whether that should be part of this function. But emacs 23.2's `file-relative-name' has a bug. It does not work when there's a drive letter is capitalized."
   (replace-regexp-in-string
    "\\`[A-Za-z]:" ""
-   (replace-regexp-in-string "\\\\" "/" φfpath t t)))
+   (replace-regexp-in-string "\\\\" "/" *fpath t t)))
 
 
 
-(defun xah-get-image-dimensions (φfile-path)
+(defun xah-get-image-dimensions (*file-path)
   "Returns a vector [width height] of a image's dimension.
 The elements are integer datatype.
 Support png jpg svg gif and any image type emacs supports.
 If it's svg, and dimension cannot be determined, it returns [0 0]
 URL `http://ergoemacs.org/emacs/elisp_image_tag.html'
 Version 2015-06-13"
-  (let ((ξx nil)
-        (ξy nil))
+  (let ((-x nil)
+        (-y nil))
     (cond
-     ((string-match "\.svg$" φfile-path)
+     ((string-match "\.svg$" *file-path)
       (progn
         (with-temp-buffer
           ;; hackish. grab the first occurence of width height in file
-          (insert-file-contents φfile-path)
+          (insert-file-contents *file-path)
           (goto-char (point-min))
           (when (search-forward-regexp "width=\"\\([0-9]+\\).*\"" nil 'NOERROR)
-            (setq ξx (match-string 1 )))
+            (setq -x (match-string 1 )))
           (goto-char (point-min))
           (if (search-forward-regexp "height=\"\\([0-9]+\\).*\"" nil 'NOERROR)
-              (setq ξy (match-string 1 ))))
-        (if (and (not (null ξx)) (not (null ξy)))
-            (progn (vector (string-to-number ξx) (string-to-number ξy)))
+              (setq -y (match-string 1 ))))
+        (if (and (not (null -x)) (not (null -y)))
+            (progn (vector (string-to-number -x) (string-to-number -y)))
           (progn [0 0]))))
      (t
-      (let (ξxy )
+      (let (-xy )
         (progn
           (clear-image-cache t)
-          (setq ξxy (image-size
+          (setq -xy (image-size
                      (create-image
-                      (if (file-name-absolute-p φfile-path)
-                          φfile-path
-                        (concat default-directory φfile-path)))
+                      (if (file-name-absolute-p *file-path)
+                          *file-path
+                        (concat default-directory *file-path)))
                      t)))
-        (vector (car ξxy) (cdr ξxy)))))))
+        (vector (car -xy) (cdr -xy)))))))
 
-(defun xah-get-image-dimensions-imk (φimg-file-path)
+(defun xah-get-image-dimensions-imk (*img-file-path)
   "Returns a image file's width and height as a vector.
 This function requires ImageMagick's “identify” shell command.
 See also: `xah-get-image-dimensions'.
 URL `http://ergoemacs.org/emacs/elisp_image_tag.html'
 Version 2015-05-12"
-  (let ((ξwidth-height
+  (let ((-width-height
          (split-string
           (shell-command-to-string
            (concat
             "identify -format \"%w %h\" "
-            φimg-file-path)))))
+            *img-file-path)))))
     (vector
-     (string-to-number (elt ξwidth-height 0))
-     (string-to-number (elt ξwidth-height 1)))))
+     (string-to-number (elt -width-height 0))
+     (string-to-number (elt -width-height 1)))))
 
 
-(defun xah-get-string-from-file (φfile-path)
-  "Return φfile-path's content."
+(defun xah-get-string-from-file (*file-path)
+  "Return *file-path's content."
   (with-temp-buffer
-    (insert-file-contents φfile-path)
+    (insert-file-contents *file-path)
     (buffer-string)))
 
-(defun xah-get-file-lines (φfile-path)
-  "Return a list of lines of a file at φfile-path."
+(defun xah-get-file-lines (*file-path)
+  "Return a list of lines of a file at *file-path."
   (with-temp-buffer
-    (insert-file-contents φfile-path)
+    (insert-file-contents *file-path)
     (split-string (buffer-string) "\n" t)))
 
 
 
 ;; 2013-02-21 INCORRECT behavior.
-;(defun delete-subdirs-by-regex (φdir φregex)
-;  "Delete sub-directories in φdir whose path matches ΦREGEX."
+;(defun delete-subdirs-by-regex (*dir *regex)
+;  "Delete sub-directories in *dir whose path matches *REGEX."
 ;  (require 'find-lisp)
 ;  (mapc
-;   (lambda (ξx) (when (file-directory-p ξx)
-;;;(delete-directory ξx t)
-;                  (print ξx)
+;   (lambda (-x) (when (file-directory-p -x)
+;;;(delete-directory -x t)
+;                  (print -x)
 ;                  ))
-;   (find-lisp-find-files φdir φregex)) )
+;   (find-lisp-find-files *dir *regex)) )
 
-(defun xah-delete-files-by-regex (φdir φregex)
-  "Delete files in φdir whose file name (not full path) matches regex φregex.
+(defun xah-delete-files-by-regex (*dir *regex)
+  "Delete files in *dir whose file name (not full path) matches regex *regex.
  Example:
   (xah-delete-files-by-regex \"~/web\" \"~$\") ; remove files ending in ~
 "
   (require 'find-lisp)
-  (mapc (lambda (ξx) (if (file-regular-p ξx) (delete-file ξx)))
-        (find-lisp-find-files φdir φregex)))
+  (mapc (lambda (-x) (if (file-regular-p -x) (delete-file -x)))
+        (find-lisp-find-files *dir *regex)))
 
-(defun xah-file-relative-name-emacs24.1.1-fix (φfile-path φdir-path)
+(defun xah-file-relative-name-emacs24.1.1-fix (*file-path *dir-path)
   "fix for `file-relative-name'. If path start with cap such as “C:” (Windows file path), it won't work.
 e.g.
  (file-relative-name \"c:/Users/h3/.emacs.d/test.el\" \"c:/Users/h3/.emacs.d/\" )
@@ -226,7 +226,7 @@ e.g.
 GNU Emacs 24.1.1 (i386-mingw-nt6.1.7601) of 2012-06-10 on MARVIN
 "
   (file-relative-name
-   (replace-regexp-in-string "\\`C:/" "c:/" φfile-path  "FIXEDCASE" "LITERAL") φdir-path ))
+   (replace-regexp-in-string "\\`C:/" "c:/" *file-path  "FIXEDCASE" "LITERAL") *dir-path ))
 
 
 
@@ -254,24 +254,24 @@ GNU Emacs 24.1.1 (i386-mingw-nt6.1.7601) of 2012-06-10 on MARVIN
     ))
 
 ;; (defalias 'xah-trim-string 'string-trim
-;;   "Remove white spaces in beginning and ending of φstring.
+;;   "Remove white spaces in beginning and ending of *string.
 ;; White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
 
 ;; Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You need to (require 'subr-x).
 ;; ")
 
-;; (defun xah-trim-string (φstring)
-;;   "Remove white spaces in beginning and ending of φstring.
+;; (defun xah-trim-string (*string)
+;;   "Remove white spaces in beginning and ending of *string.
 ;; White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
 
 ;; Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You need to (require 'subr-x).
 ;; "
-;;   (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" φstring))
+;;   (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" *string))
 ;; )
 
-(defun xah-substract-path (φpath1 φpath2)
-  "Remove string φpath2 from the beginning of φpath1.
-length of φpath1 ≥ to length φpath2.
+(defun xah-substract-path (*path1 *path2)
+  "Remove string *path2 from the beginning of *path1.
+length of *path1 ≥ to length *path2.
 
 path1
 c:/Users/lisa/web/a/b
@@ -284,10 +284,10 @@ a/b
 
 This is the similar to emacs 24.4's `string-remove-prefix' from (require 'subr-x).
 Version 2015-12-15"
-  (let ((ξp2length (length φpath2)))
-    (if (string= (substring φpath1 0 ξp2length) φpath2 )
-        (substring φpath1 ξp2length)
-      (error "error 34689: beginning doesn't match: 「%s」 「%s」" φpath1 φpath2))))
+  (let ((-p2length (length *path2)))
+    (if (string= (substring *path1 0 -p2length) *path2 )
+        (substring *path1 -p2length)
+      (error "error 34689: beginning doesn't match: 「%s」 「%s」" *path1 *path2))))
 
 (defun xah-hash-to-list (hash-table)
   "Return a list that represent the HASH-TABLE
@@ -309,14 +309,14 @@ Version 2015-04-25"
 
 
 
-(defun xah-asciify-text (&optional φbegin φend)
+(defun xah-asciify-text (&optional *begin *end)
   "Change European language characters into equivalent ASCII ones, ⁖ “café” ⇒ “cafe”.
 When called interactively, work on current line or text selection.
 
 URL `http://ergoemacs.org/emacs/emacs_zap_gremlins.html'
-Version 2015-06-08"
+Version 2016-07-12"
   (interactive)
-  (let ((ξcharMap
+  (let ((-charMap
          [
           ["á\\|à\\|â\\|ä\\|ā\\|ǎ\\|ã\\|å\\|ą" "a"]
           ["é\\|è\\|ê\\|ë\\|ē\\|ě\\|ę" "e"]
@@ -336,31 +336,31 @@ Version 2015-06-08"
           ["ř\\|ŕ" "r"]
           ["ž\\|ź\\|ż" "z"]
           ])
-        ξbegin ξend
+        -begin -end
         )
 
-    (if (null φbegin)
+    (if (null *begin)
         (if (use-region-p)
-            (progn (setq ξbegin (region-beginning)) (setq ξend (region-end)))
-          (progn (setq ξbegin (line-beginning-position)) (setq ξend (line-end-position))))
-      (progn (setq ξbegin φbegin) (setq ξend φend)))
+            (progn (setq -begin (region-beginning)) (setq -end (region-end)))
+          (progn (setq -begin (line-beginning-position)) (setq -end (line-end-position))))
+      (progn (setq -begin *begin) (setq -end *end)))
 
     (let ((case-fold-search t))
       (save-restriction
-        (narrow-to-region ξbegin ξend)
+        (narrow-to-region -begin -end)
         (mapc
-         (lambda (ξpair)
+         (lambda (-pair)
            (goto-char (point-min))
-           (while (search-forward-regexp (elt ξpair 0) (point-max) t)
-             (replace-match (elt ξpair 1))))
-         ξcharMap)))))
+           (while (search-forward-regexp (elt -pair 0) (point-max) t)
+             (replace-match (elt -pair 1))))
+         -charMap)))))
 
-(defun xah-asciify-string (φstring)
+(defun xah-asciify-string (*string)
   "Returns a new string. European language chars are changed ot ASCII ones ⁖ “café” ⇒ “cafe”.
 See `xah-asciify-text'
 Version 2015-06-08"
   (with-temp-buffer
-      (insert φstring)
+      (insert *string)
       (xah-asciify-text (point-min) (point-max))
       (buffer-string)))
 
@@ -372,7 +372,7 @@ Version 2015-06-08"
 
 (defvar xah-weekday-names '("Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday" "Sunday") "list of English weekday full names.")
 
-(defun xah-insert-date (&optional φadd-time-stamp-p)
+(defun xah-insert-date (&optional *add-time-stamp-p)
   "Insert current date and or time.
 
 • In this format yyyy-mm-dd.
@@ -383,7 +383,7 @@ See also `xah-current-date-time-string'."
   (interactive "P")
   (when (use-region-p) (delete-region (region-beginning) (region-end) ) )
   (cond
-   ((equal φadd-time-stamp-p nil ) (insert (format-time-string "%Y-%m-%d")))
+   ((equal *add-time-stamp-p nil ) (insert (format-time-string "%Y-%m-%d")))
    (t (insert (xah-current-date-time-string))) ) )
 
 (defun xah-current-date-time-string ()
@@ -393,30 +393,30 @@ Example: 「2012-04-05T21:08:24-07:00」.
 Note, for the time zone offset, both the formats 「hhmm」 and 「hh:mm」 are valid ISO 8601. However, Atom Webfeed spec seems to require 「hh:mm」."
   (concat
    (format-time-string "%Y-%m-%dT%T")
-   ((lambda (ξx) (format "%s:%s" (substring ξx 0 3) (substring ξx 3 5))) (format-time-string "%z"))))
+   ((lambda (-x) (format "%s:%s" (substring -x 0 3) (substring -x 3 5))) (format-time-string "%z"))))
 
-(defun xah-is-datetimestamp-p (φinput-string)
-  "Return t if φinput-string is a date/time stamp, else nil.
+(defun xah-is-datetimestamp-p (*input-string)
+  "Return t if *input-string is a date/time stamp, else nil.
 This is based on heuristic, so it's not 100% correct.
 If the string contains any month names, weekday names, or of the form dddd-dd-dd, dddd-dd-dddd, dddd-dd-dd, or using slash, then it's considered a date.
 "
   (cond
-         ((string-match (regexp-opt (append xah-month-full-names xah-month-abbrev-names xah-weekday-names) 'words) φinput-string) t)
+         ((string-match (regexp-opt (append xah-month-full-names xah-month-abbrev-names xah-weekday-names) 'words) *input-string) t)
          ;; mm/dd/yyyy
-         ((string-match "\\b[0-9][0-9]/[0-9][0-9]/[0-9][0-9][0-9][0-9]\\b" φinput-string) t)
+         ((string-match "\\b[0-9][0-9]/[0-9][0-9]/[0-9][0-9][0-9][0-9]\\b" *input-string) t)
          ;; yyyy/mm/dd
-         ((string-match "\\b[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]\\b" φinput-string) t)
+         ((string-match "\\b[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]\\b" *input-string) t)
          ;; mm/dd/yy
-         ((string-match "\\b[0-9][0-9]/[0-9][0-9]/[0-9][0-9]\\b" φinput-string) t)
+         ((string-match "\\b[0-9][0-9]/[0-9][0-9]/[0-9][0-9]\\b" *input-string) t)
          ;; mm-dd-yyyy
-         ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9]\\b" φinput-string) t)
+         ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9]\\b" *input-string) t)
          ;; yyyy-mm-dd
-         ((string-match "\\b[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" φinput-string) t)
+         ((string-match "\\b[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" *input-string) t)
          ;; mm-dd-yy
-         ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" φinput-string) t)
+         ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" *input-string) t)
          (t nil) ))
 
-(defun xah-fix-datetime-stamp (φinput-string &optional φbegin-end)
+(defun xah-fix-datetime-stamp (*input-string &optional *begin-end)
   "Change timestamp under cursor into a yyyy-mm-dd format.
 If there's a text selection, use that as input, else use current line.
 
@@ -428,8 +428,8 @@ For example:
  「11/28/1994」                     ⇒ 「1994-11-28」
  「1994/11/28」                     ⇒ 「1994-11-28」
 
-When called in lisp program, the optional second argument “φbegin-end” is a vector of region boundary. (it can also be a list)
-If “φbegin-end” is non-nil, the region is taken as input (and “φinput-string” is ignored).
+When called in lisp program, the optional second argument “*begin-end” is a vector of region boundary. (it can also be a list)
+If “*begin-end” is non-nil, the region is taken as input (and “*input-string” is ignored).
 
 URL `http://ergoemacs.org/emacs/elisp_parse_time.html'
 Version 2015-04-14"
@@ -438,78 +438,78 @@ Version 2015-04-14"
    (list nil (vector (line-beginning-position) (line-end-position))))
 
   (let (
-        (ξstr (if φbegin-end (buffer-substring-no-properties (elt φbegin-end 0) (elt φbegin-end 1)) φinput-string))
-        (ξwork-on-region-p (if φbegin-end t nil)))
+        (-str (if *begin-end (buffer-substring-no-properties (elt *begin-end 0) (elt *begin-end 1)) *input-string))
+        (-work-on-region-p (if *begin-end t nil)))
     (require 'parse-time)
 
-    (setq ξstr (replace-regexp-in-string "^ *\\(.+\\) *$" "\\1" ξstr)) ; remove white spaces
+    (setq -str (replace-regexp-in-string "^ *\\(.+\\) *$" "\\1" -str)) ; remove white spaces
 
-    (setq ξstr
+    (setq -str
           (cond
            ;; USA convention of mm/dd/yyyy
-           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" ξstr)
-            (concat (match-string 3 ξstr) "-" (match-string 1 ξstr) "-" (match-string 2 ξstr)))
+           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" -str)
+            (concat (match-string 3 -str) "-" (match-string 1 -str) "-" (match-string 2 -str)))
            ;; USA convention of m/dd/yyyy
-           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" ξstr)
-            (concat (match-string 3 ξstr) "-0" (match-string 1 ξstr) "-" (match-string 2 ξstr)))
+           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" -str)
+            (concat (match-string 3 -str) "-0" (match-string 1 -str) "-" (match-string 2 -str)))
 
            ;; USA convention of mm/dd/yy
-           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" ξstr)
-            (concat (format-time-string "%C") (match-string 3 ξstr) "-" (match-string 1 ξstr) "-" (match-string 2 ξstr)))
+           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" -str)
+            (concat (format-time-string "%C") (match-string 3 -str) "-" (match-string 1 -str) "-" (match-string 2 -str)))
            ;; USA convention of m/dd/yy
-           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" ξstr)
-            (concat (format-time-string "%C") (match-string 3 ξstr) "-0" (match-string 1 ξstr) "-" (match-string 2 ξstr)))
+           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" -str)
+            (concat (format-time-string "%C") (match-string 3 -str) "-0" (match-string 1 -str) "-" (match-string 2 -str)))
 
            ;; yyyy/mm/dd
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" ξstr)
-            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr) "-" (match-string 3 ξstr)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" -str)
+            (concat (match-string 1 -str) "-" (match-string 2 -str) "-" (match-string 3 -str)))
 
            ;; some ISO 8601. yyyy-mm-ddThh:mm
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T[0-9][0-9]:[0-9][0-9]" ξstr)
-            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr) "-" (match-string 3 ξstr)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T[0-9][0-9]:[0-9][0-9]" -str)
+            (concat (match-string 1 -str) "-" (match-string 2 -str) "-" (match-string 3 -str)))
            ;; some ISO 8601. yyyy-mm-dd
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)" ξstr)
-            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr) "-" (match-string 3 ξstr)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)" -str)
+            (concat (match-string 1 -str) "-" (match-string 2 -str) "-" (match-string 3 -str)))
            ;; some ISO 8601. yyyy-mm
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)" ξstr)
-            (concat (match-string 1 ξstr) "-" (match-string 2 ξstr)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)" -str)
+            (concat (match-string 1 -str) "-" (match-string 2 -str)))
 
            ;; else
            (t
             (progn
-              (setq ξstr (replace-regexp-in-string "January " "Jan. " ξstr))
-              (setq ξstr (replace-regexp-in-string "February " "Feb. " ξstr))
-              (setq ξstr (replace-regexp-in-string "March " "Mar. " ξstr))
-              (setq ξstr (replace-regexp-in-string "April " "Apr. " ξstr))
-              (setq ξstr (replace-regexp-in-string "May " "May. " ξstr))
-              (setq ξstr (replace-regexp-in-string "June " "Jun. " ξstr))
-              (setq ξstr (replace-regexp-in-string "July " "Jul. " ξstr))
-              (setq ξstr (replace-regexp-in-string "August " "Aug. " ξstr))
-              (setq ξstr (replace-regexp-in-string "September " "Sep. " ξstr))
-              (setq ξstr (replace-regexp-in-string "October " "Oct. " ξstr))
-              (setq ξstr (replace-regexp-in-string "November " "Nov. " ξstr))
-              (setq ξstr (replace-regexp-in-string "December " "Dec. " ξstr))
+              (setq -str (replace-regexp-in-string "January " "Jan. " -str))
+              (setq -str (replace-regexp-in-string "February " "Feb. " -str))
+              (setq -str (replace-regexp-in-string "March " "Mar. " -str))
+              (setq -str (replace-regexp-in-string "April " "Apr. " -str))
+              (setq -str (replace-regexp-in-string "May " "May. " -str))
+              (setq -str (replace-regexp-in-string "June " "Jun. " -str))
+              (setq -str (replace-regexp-in-string "July " "Jul. " -str))
+              (setq -str (replace-regexp-in-string "August " "Aug. " -str))
+              (setq -str (replace-regexp-in-string "September " "Sep. " -str))
+              (setq -str (replace-regexp-in-string "October " "Oct. " -str))
+              (setq -str (replace-regexp-in-string "November " "Nov. " -str))
+              (setq -str (replace-regexp-in-string "December " "Dec. " -str))
 
-              (setq ξstr (replace-regexp-in-string "\\([0-9]+\\)st" "\\1" ξstr))
-              (setq ξstr (replace-regexp-in-string "\\([0-9]+\\)nd" "\\1" ξstr))
-              (setq ξstr (replace-regexp-in-string "\\([0-9]+\\)rd" "\\1" ξstr))
-              (setq ξstr (replace-regexp-in-string "\\([0-9]\\)th" "\\1" ξstr))
+              (setq -str (replace-regexp-in-string "\\([0-9]+\\)st" "\\1" -str))
+              (setq -str (replace-regexp-in-string "\\([0-9]+\\)nd" "\\1" -str))
+              (setq -str (replace-regexp-in-string "\\([0-9]+\\)rd" "\\1" -str))
+              (setq -str (replace-regexp-in-string "\\([0-9]\\)th" "\\1" -str))
 
-              (let (dateList ξyear ξmonth ξdate ξyyyy ξmm ξdd )
-                (setq dateList (parse-time-string ξstr))
-                (setq ξyear (nth 5 dateList))
-                (setq ξmonth (nth 4 dateList))
-                (setq ξdate (nth 3 dateList))
+              (let (dateList -year -month -date -yyyy -mm -dd )
+                (setq dateList (parse-time-string -str))
+                (setq -year (nth 5 dateList))
+                (setq -month (nth 4 dateList))
+                (setq -date (nth 3 dateList))
 
-                (setq ξyyyy (number-to-string ξyear))
-                (setq ξmm (if ξmonth (format "%02d" ξmonth) "" ))
-                (setq ξdd (if ξdate (format "%02d" ξdate) "" ))
-                (concat ξyyyy "-" ξmm "-" ξdd))))))
+                (setq -yyyy (number-to-string -year))
+                (setq -mm (if -month (format "%02d" -month) "" ))
+                (setq -dd (if -date (format "%02d" -date) "" ))
+                (concat -yyyy "-" -mm "-" -dd))))))
 
-    (if ξwork-on-region-p
-        (progn (delete-region  (elt φbegin-end 0) (elt φbegin-end 1))
-               (insert ξstr))
-      ξstr )))
+    (if -work-on-region-p
+        (progn (delete-region  (elt *begin-end 0) (elt *begin-end 1))
+               (insert -str))
+      -str )))
 
 
 
