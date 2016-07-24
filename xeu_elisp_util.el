@@ -68,7 +68,7 @@
 (defun xah-filter-list (*predicate *sequence)
   "Return a new list such that *predicate is true on all members of *sequence.
 URL `http://ergoemacs.org/emacs/elisp_filter_list.html'
-Version 2015-05-23"
+Version 2016-07-18"
   (delete
    "e3824ad41f2ec1ed"
    (mapcar
@@ -88,30 +88,33 @@ Version 2015-05-23"
 ;; "yes"
 ;; nil)
 
-(defun xah-string-match-in-list-p (*str *list-of-string *match-case-p &optional *reverse-match-p)
-  "Return the first element in *list-of-string if *str occur in *list-of-string, else false.
+(defun xah-string-match-in-list-p (*str *list-of-string *match-case-p &optional *reverse-contain-p)
+  "If *str occur in list *list-of-string, return true (the first element), else nil.
 
-if *reverse-match-p is true, change the direction of match. That is, true if any element in *list-of-string occur in *str.
+if *reverse-contain-p is true, change the direction of match. That is, true if any element in *list-of-string occur in *str.
 
 *match-case-p determines whether case is literal for the match.
+
 No regex is used.
-Existing match data is changed. Wrap it with `save-match-data' if you need it restored."
+
+Existing match data is changed. Wrap it with `save-match-data' if you need it restored.
+
+URL `http://ergoemacs.org/emacs/elisp_string_match_in_list.html'
+Version 2016-07-18"
   (let ((case-fold-search (not *match-case-p)))
-    (if *reverse-match-p
-        (progn
-          (catch 'myTagName
-            (mapc
-             (lambda (-x)
-               (when (string-match (regexp-quote -x) *str ) (throw 'myTagName -x)))
-             *list-of-string)
-            nil))
-      (progn
-        (catch 'myTagName
+    (if *reverse-contain-p
+        (catch 'tag
           (mapc
            (lambda (-x)
-             (when (string-match (regexp-quote *str) -x ) (throw 'myTagName -x)))
+             (when (string-match (regexp-quote -x) *str ) (throw 'tag -x)))
            *list-of-string)
-          nil)))))
+          nil)
+      (catch 'tag
+        (mapc
+         (lambda (-x)
+           (when (string-match (regexp-quote *str) -x ) (throw 'tag -x)))
+         *list-of-string)
+        nil))))
 
 
 
@@ -289,8 +292,8 @@ Version 2015-12-15"
         (substring *path1 -p2length)
       (error "error 34689: beginning doesn't match: 「%s」 「%s」" *path1 *path2))))
 
-(defun xah-hash-to-list (hash-table)
-  "Return a list that represent the HASH-TABLE
+(defun xah-hash-to-list (*hash-table)
+  "Return a list that represent the *HASH-TABLE
 Each element is a list: (list key value).
 
 See also, emacs 24.4's new functions.
@@ -300,12 +303,12 @@ See also, emacs 24.4's new functions.
 
 http://ergoemacs.org/emacs/elisp_hash_table.html
 Version 2015-04-25"
-  (let (result)
+  (let (-result)
     (maphash
      (lambda (k v)
-       (push (list k v) result))
-     hash-table)
-    result))
+       (push (list k v) -result))
+     *hash-table)
+    -result))
 
 
 
@@ -338,13 +341,17 @@ Version 2016-07-12"
           ])
         -begin -end
         )
-
     (if (null *begin)
         (if (use-region-p)
-            (progn (setq -begin (region-beginning)) (setq -end (region-end)))
-          (progn (setq -begin (line-beginning-position)) (setq -end (line-end-position))))
-      (progn (setq -begin *begin) (setq -end *end)))
-
+            (progn
+              (setq -begin (region-beginning))
+              (setq -end (region-end)))
+          (progn
+            (setq -begin (line-beginning-position))
+            (setq -end (line-end-position))))
+      (progn
+        (setq -begin *begin)
+        (setq -end *end)))
     (let ((case-fold-search t))
       (save-restriction
         (narrow-to-region -begin -end)
