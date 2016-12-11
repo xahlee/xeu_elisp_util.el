@@ -1,14 +1,20 @@
 ;;; xeu_elisp_util.el --- xah's misc elisp utility. -*- coding: utf-8 -*-
 
-;; Copyright © 2011, 2012 by Xah Lee
+;; Copyright © 2013-2016, by Xah Lee
 
-;; Author: Xah Lee ( http://xahlee.org/ )
-;; Created: 2011-03-02
+;; Author: Xah Lee ( http://xahlee.info/ )
+;; Version: 1.5.0
+;; Created: 02 Mar 2011
+;; Package-Requires: ((emacs "24.3"))
 ;; Keywords: emacs lisp, utility, file
 
-;; You can redistribute this program and/or modify it. Please give credit and link. Thanks.
+;; This file is not part of GNU Emacs.
 
-;;; DESCRIPTION
+;;; License:
+
+;; You can redistribute this program and/or modify it under the terms of the GNU General Public License version 2.
+
+;;; Commentary:
 
 ;; this package is some misc emacs lisp utility.
 ;; call list-matching-lines with “defun ”
@@ -23,7 +29,7 @@
 ;; Place the file in your emacs load path. Then
 ;; (require 'xeu_elisp_util)
 
-;;; HISTORY
+;;; HISTORY:
 
 ;; 2015-09-16 alias 'xah-trim-string to emacs's version when possible
 ;; 2015-09-16 renamed trim-string to xah-trim-string
@@ -60,8 +66,6 @@
 ;;; Code:
 
 ;; (require 'xah-get-thing)
-;; (defalias 'unit-at-cursor 'xah-get-thing-at-cursor)
-;; (defalias 'get-selection-or-unit 'xah-get-thing-or-selection)
 
 
 
@@ -313,7 +317,8 @@ Version 2015-04-25"
 
 
 (defun xah-asciify-text (&optional *begin *end)
-  "Change European language characters into equivalent ASCII ones, ⁖ “café” ⇒ “cafe”.
+  "Remove accents in some letters and some
+Change European language characters into equivalent ASCII ones, e.g. “café” ⇒ “cafe”.
 When called interactively, work on current line or text selection.
 
 URL `http://ergoemacs.org/emacs/emacs_zap_gremlins.html'
@@ -363,7 +368,7 @@ Version 2016-07-12"
          -charMap)))))
 
 (defun xah-asciify-string (*string)
-  "Returns a new string. European language chars are changed ot ASCII ones ⁖ “café” ⇒ “cafe”.
+  "Returns a new string. European language chars are changed ot ASCII ones e.g. “café” ⇒ “cafe”.
 See `xah-asciify-text'
 Version 2015-06-08"
   (with-temp-buffer
