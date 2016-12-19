@@ -1,9 +1,9 @@
-;;; xeu_elisp_util.el --- xah's misc elisp utility. -*- coding: utf-8 -*-
+;;; xeu_elisp_util.el --- xah's misc elisp utility. -*- coding: utf-8; lexical-binding: t; -*-
 
 ;; Copyright © 2013-2016, by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.5.0
+;; Version: 1.5.2
 ;; Created: 02 Mar 2011
 ;; Package-Requires: ((emacs "24.3"))
 ;; Keywords: emacs lisp, utility, file
@@ -405,7 +405,7 @@ Example: 「2012-04-05T21:08:24-07:00」.
 Note, for the time zone offset, both the formats 「hhmm」 and 「hh:mm」 are valid ISO 8601. However, Atom Webfeed spec seems to require 「hh:mm」."
   (concat
    (format-time-string "%Y-%m-%dT%T")
-   ((lambda (-x) (format "%s:%s" (substring -x 0 3) (substring -x 3 5))) (format-time-string "%z"))))
+   (funcall (lambda (-x) (format "%s:%s" (substring -x 0 3) (substring -x 3 5))) (format-time-string "%z"))))
 
 (defun xah-is-datetimestamp-p (*input-string)
   "Return t if *input-string is a date/time stamp, else nil.
