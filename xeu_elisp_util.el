@@ -3,7 +3,7 @@
 ;; Copyright © 2013-2016, by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.5.2
+;; Version: 1.5.3
 ;; Created: 02 Mar 2011
 ;; Package-Requires: ((emacs "24.3"))
 ;; Keywords: emacs lisp, utility, file
@@ -143,8 +143,9 @@ TODO: The drive letter is removed. Not sure whether that should be part of this 
 The elements are integer datatype.
 Support png jpg svg gif and any image type emacs supports.
 If it's svg, and dimension cannot be determined, it returns [0 0]
+
 URL `http://ergoemacs.org/emacs/elisp_image_tag.html'
-Version 2015-06-13"
+Version 2017-01-11"
   (let ((-x nil)
         (-y nil))
     (cond
@@ -154,10 +155,10 @@ Version 2015-06-13"
           ;; hackish. grab the first occurence of width height in file
           (insert-file-contents *file-path)
           (goto-char (point-min))
-          (when (search-forward-regexp "width=\"\\([0-9]+\\).*\"" nil 'NOERROR)
+          (when (search-forward-regexp "width=\"\\([0-9]+\\).*\"" nil "NOERROR")
             (setq -x (match-string 1 )))
           (goto-char (point-min))
-          (if (search-forward-regexp "height=\"\\([0-9]+\\).*\"" nil 'NOERROR)
+          (if (search-forward-regexp "height=\"\\([0-9]+\\).*\"" nil "NOERROR")
               (setq -y (match-string 1 ))))
         (if (and (not (null -x)) (not (null -y)))
             (progn (vector (string-to-number -x) (string-to-number -y)))
