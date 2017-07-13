@@ -3,7 +3,7 @@
 ;; Copyright © 2013-2016, by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.5.3
+;; Version: 1.5.4
 ;; Created: 02 Mar 2011
 ;; Package-Requires: ((emacs "24.3"))
 ;; Keywords: emacs lisp, utility, file
@@ -76,9 +76,9 @@ Version 2016-07-18"
   (delete
    "e3824ad41f2ec1ed"
    (mapcar
-    (lambda (-x)
-      (if (funcall *predicate -x)
-          -x
+    (lambda ($x)
+      (if (funcall *predicate $x)
+          $x
         "e3824ad41f2ec1ed" ))
     *sequence)))
 
@@ -109,14 +109,14 @@ Version 2016-07-18"
     (if *reverse-contain-p
         (catch 'tag
           (mapc
-           (lambda (-x)
-             (when (string-match (regexp-quote -x) *str ) (throw 'tag -x)))
+           (lambda ($x)
+             (when (string-match (regexp-quote $x) *str ) (throw 'tag $x)))
            *list-of-string)
           nil)
       (catch 'tag
         (mapc
-         (lambda (-x)
-           (when (string-match (regexp-quote *str) -x ) (throw 'tag -x)))
+         (lambda ($x)
+           (when (string-match (regexp-quote *str) $x ) (throw 'tag $x)))
          *list-of-string)
         nil))))
 
@@ -146,8 +146,8 @@ If it's svg, and dimension cannot be determined, it returns [0 0]
 
 URL `http://ergoemacs.org/emacs/elisp_image_tag.html'
 Version 2017-01-11"
-  (let ((-x nil)
-        (-y nil))
+  (let (($x nil)
+        ($y nil))
     (cond
      ((string-match "\.svg$" *file-path)
       (progn
@@ -156,24 +156,24 @@ Version 2017-01-11"
           (insert-file-contents *file-path)
           (goto-char (point-min))
           (when (search-forward-regexp "width=\"\\([0-9]+\\).*\"" nil "NOERROR")
-            (setq -x (match-string 1 )))
+            (setq $x (match-string 1 )))
           (goto-char (point-min))
           (if (search-forward-regexp "height=\"\\([0-9]+\\).*\"" nil "NOERROR")
-              (setq -y (match-string 1 ))))
-        (if (and (not (null -x)) (not (null -y)))
-            (progn (vector (string-to-number -x) (string-to-number -y)))
+              (setq $y (match-string 1 ))))
+        (if (and (not (null $x)) (not (null $y)))
+            (progn (vector (string-to-number $x) (string-to-number $y)))
           (progn [0 0]))))
      (t
-      (let (-xy )
+      (let ($xy )
         (progn
           (clear-image-cache t)
-          (setq -xy (image-size
+          (setq $xy (image-size
                      (create-image
                       (if (file-name-absolute-p *file-path)
                           *file-path
                         (concat default-directory *file-path)))
                      t)))
-        (vector (car -xy) (cdr -xy)))))))
+        (vector (car $xy) (cdr $xy)))))))
 
 (defun xah-get-image-dimensions-imk (*img-file-path)
   "Returns a image file's width and height as a vector.
@@ -181,15 +181,15 @@ This function requires ImageMagick's “identify” shell command.
 See also: `xah-get-image-dimensions'.
 URL `http://ergoemacs.org/emacs/elisp_image_tag.html'
 Version 2015-05-12"
-  (let ((-width-height
+  (let (($width-height
          (split-string
           (shell-command-to-string
            (concat
-            "identify -format \"%w %h\" "
+            "identify $format \"%w %h\" "
             *img-file-path)))))
     (vector
-     (string-to-number (elt -width-height 0))
-     (string-to-number (elt -width-height 1)))))
+     (string-to-number (elt $width-height 0))
+     (string-to-number (elt $width-height 1)))))
 
 
 (defun xah-get-string-from-file (*file-path)
@@ -211,9 +211,9 @@ Version 2015-05-12"
 ;  "Delete sub-directories in *dir whose path matches *REGEX."
 ;  (require 'find-lisp)
 ;  (mapc
-;   (lambda (-x) (when (file-directory-p -x)
-;;;(delete-directory -x t)
-;                  (print -x)
+;   (lambda ($x) (when (file-directory-p $x)
+;;;(delete-directory $x t)
+;                  (print $x)
 ;                  ))
 ;   (find-lisp-find-files *dir *regex)) )
 
@@ -223,7 +223,7 @@ Version 2015-05-12"
   (xah-delete-files-by-regex \"~/web\" \"~$\") ; remove files ending in ~
 "
   (require 'find-lisp)
-  (mapc (lambda (-x) (if (file-regular-p -x) (delete-file -x)))
+  (mapc (lambda ($x) (if (file-regular-p $x) (delete-file $x)))
         (find-lisp-find-files *dir *regex)))
 
 (defun xah-file-relative-name-emacs24.1.1-fix (*file-path *dir-path)
@@ -292,9 +292,9 @@ a/b
 
 This is the similar to emacs 24.4's `string-remove-prefix' from (require 'subr-x).
 Version 2015-12-15"
-  (let ((-p2length (length *path2)))
-    (if (string= (substring *path1 0 -p2length) *path2 )
-        (substring *path1 -p2length)
+  (let (($p2length (length *path2)))
+    (if (string= (substring *path1 0 $p2length) *path2 )
+        (substring *path1 $p2length)
       (error "error 34689: beginning doesn't match: 「%s」 「%s」" *path1 *path2))))
 
 (defun xah-hash-to-list (*hash-table)
@@ -308,12 +308,12 @@ See also, emacs 24.4's new functions.
 
 http://ergoemacs.org/emacs/elisp_hash_table.html
 Version 2015-04-25"
-  (let (-result)
+  (let ($result)
     (maphash
      (lambda (k v)
-       (push (list k v) -result))
+       (push (list k v) $result))
      *hash-table)
-    -result))
+    $result))
 
 
 
@@ -325,7 +325,7 @@ When called interactively, work on current line or text selection.
 URL `http://ergoemacs.org/emacs/emacs_zap_gremlins.html'
 Version 2016-07-12"
   (interactive)
-  (let ((-charMap
+  (let (($charMap
          [
           ["á\\|à\\|â\\|ä\\|ā\\|ǎ\\|ã\\|å\\|ą" "a"]
           ["é\\|è\\|ê\\|ë\\|ē\\|ě\\|ę" "e"]
@@ -345,28 +345,28 @@ Version 2016-07-12"
           ["ř\\|ŕ" "r"]
           ["ž\\|ź\\|ż" "z"]
           ])
-        -begin -end
+        $begin $end
         )
     (if (null *begin)
         (if (use-region-p)
             (progn
-              (setq -begin (region-beginning))
-              (setq -end (region-end)))
+              (setq $begin (region-beginning))
+              (setq $end (region-end)))
           (progn
-            (setq -begin (line-beginning-position))
-            (setq -end (line-end-position))))
+            (setq $begin (line-beginning-position))
+            (setq $end (line-end-position))))
       (progn
-        (setq -begin *begin)
-        (setq -end *end)))
+        (setq $begin *begin)
+        (setq $end *end)))
     (let ((case-fold-search t))
       (save-restriction
-        (narrow-to-region -begin -end)
+        (narrow-to-region $begin $end)
         (mapc
-         (lambda (-pair)
+         (lambda ($pair)
            (goto-char (point-min))
-           (while (search-forward-regexp (elt -pair 0) (point-max) t)
-             (replace-match (elt -pair 1))))
-         -charMap)))))
+           (while (search-forward-regexp (elt $pair 0) (point-max) t)
+             (replace-match (elt $pair 1))))
+         $charMap)))))
 
 (defun xah-asciify-string (*string)
   "Returns a new string. European language chars are changed ot ASCII ones e.g. “café” ⇒ “cafe”.
@@ -406,7 +406,7 @@ Example: 「2012-04-05T21:08:24-07:00」.
 Note, for the time zone offset, both the formats 「hhmm」 and 「hh:mm」 are valid ISO 8601. However, Atom Webfeed spec seems to require 「hh:mm」."
   (concat
    (format-time-string "%Y-%m-%dT%T")
-   (funcall (lambda (-x) (format "%s:%s" (substring -x 0 3) (substring -x 3 5))) (format-time-string "%z"))))
+   (funcall (lambda ($x) (format "%s:%s" (substring $x 0 3) (substring $x 3 5))) (format-time-string "%z"))))
 
 (defun xah-is-datetimestamp-p (*input-string)
   "Return t if *input-string is a date/time stamp, else nil.
@@ -451,78 +451,78 @@ Version 2015-04-14"
    (list nil (vector (line-beginning-position) (line-end-position))))
 
   (let (
-        (-str (if *begin-end (buffer-substring-no-properties (elt *begin-end 0) (elt *begin-end 1)) *input-string))
-        (-work-on-region-p (if *begin-end t nil)))
+        ($str (if *begin-end (buffer-substring-no-properties (elt *begin-end 0) (elt *begin-end 1)) *input-string))
+        ($work-on-region-p (if *begin-end t nil)))
     (require 'parse-time)
 
-    (setq -str (replace-regexp-in-string "^ *\\(.+\\) *$" "\\1" -str)) ; remove white spaces
+    (setq $str (replace-regexp-in-string "^ *\\(.+\\) *$" "\\1" $str)) ; remove white spaces
 
-    (setq -str
+    (setq $str
           (cond
            ;; USA convention of mm/dd/yyyy
-           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" -str)
-            (concat (match-string 3 -str) "-" (match-string 1 -str) "-" (match-string 2 -str)))
+           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" $str)
+            (concat (match-string 3 $str) "-" (match-string 1 $str) "-" (match-string 2 $str)))
            ;; USA convention of m/dd/yyyy
-           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" -str)
-            (concat (match-string 3 -str) "-0" (match-string 1 -str) "-" (match-string 2 -str)))
+           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" $str)
+            (concat (match-string 3 $str) "-0" (match-string 1 $str) "-" (match-string 2 $str)))
 
            ;; USA convention of mm/dd/yy
-           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" -str)
-            (concat (format-time-string "%C") (match-string 3 -str) "-" (match-string 1 -str) "-" (match-string 2 -str)))
+           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" $str)
+            (concat (format-time-string "%C") (match-string 3 $str) "-" (match-string 1 $str) "-" (match-string 2 $str)))
            ;; USA convention of m/dd/yy
-           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" -str)
-            (concat (format-time-string "%C") (match-string 3 -str) "-0" (match-string 1 -str) "-" (match-string 2 -str)))
+           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" $str)
+            (concat (format-time-string "%C") (match-string 3 $str) "-0" (match-string 1 $str) "-" (match-string 2 $str)))
 
            ;; yyyy/mm/dd
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" -str)
-            (concat (match-string 1 -str) "-" (match-string 2 -str) "-" (match-string 3 -str)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" $str)
+            (concat (match-string 1 $str) "-" (match-string 2 $str) "-" (match-string 3 $str)))
 
            ;; some ISO 8601. yyyy-mm-ddThh:mm
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T[0-9][0-9]:[0-9][0-9]" -str)
-            (concat (match-string 1 -str) "-" (match-string 2 -str) "-" (match-string 3 -str)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T[0-9][0-9]:[0-9][0-9]" $str)
+            (concat (match-string 1 $str) "-" (match-string 2 $str) "-" (match-string 3 $str)))
            ;; some ISO 8601. yyyy-mm-dd
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)" -str)
-            (concat (match-string 1 -str) "-" (match-string 2 -str) "-" (match-string 3 -str)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)" $str)
+            (concat (match-string 1 $str) "-" (match-string 2 $str) "-" (match-string 3 $str)))
            ;; some ISO 8601. yyyy-mm
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)" -str)
-            (concat (match-string 1 -str) "-" (match-string 2 -str)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)" $str)
+            (concat (match-string 1 $str) "-" (match-string 2 $str)))
 
            ;; else
            (t
             (progn
-              (setq -str (replace-regexp-in-string "January " "Jan. " -str))
-              (setq -str (replace-regexp-in-string "February " "Feb. " -str))
-              (setq -str (replace-regexp-in-string "March " "Mar. " -str))
-              (setq -str (replace-regexp-in-string "April " "Apr. " -str))
-              (setq -str (replace-regexp-in-string "May " "May. " -str))
-              (setq -str (replace-regexp-in-string "June " "Jun. " -str))
-              (setq -str (replace-regexp-in-string "July " "Jul. " -str))
-              (setq -str (replace-regexp-in-string "August " "Aug. " -str))
-              (setq -str (replace-regexp-in-string "September " "Sep. " -str))
-              (setq -str (replace-regexp-in-string "October " "Oct. " -str))
-              (setq -str (replace-regexp-in-string "November " "Nov. " -str))
-              (setq -str (replace-regexp-in-string "December " "Dec. " -str))
+              (setq $str (replace-regexp-in-string "January " "Jan. " $str))
+              (setq $str (replace-regexp-in-string "February " "Feb. " $str))
+              (setq $str (replace-regexp-in-string "March " "Mar. " $str))
+              (setq $str (replace-regexp-in-string "April " "Apr. " $str))
+              (setq $str (replace-regexp-in-string "May " "May. " $str))
+              (setq $str (replace-regexp-in-string "June " "Jun. " $str))
+              (setq $str (replace-regexp-in-string "July " "Jul. " $str))
+              (setq $str (replace-regexp-in-string "August " "Aug. " $str))
+              (setq $str (replace-regexp-in-string "September " "Sep. " $str))
+              (setq $str (replace-regexp-in-string "October " "Oct. " $str))
+              (setq $str (replace-regexp-in-string "November " "Nov. " $str))
+              (setq $str (replace-regexp-in-string "December " "Dec. " $str))
 
-              (setq -str (replace-regexp-in-string "\\([0-9]+\\)st" "\\1" -str))
-              (setq -str (replace-regexp-in-string "\\([0-9]+\\)nd" "\\1" -str))
-              (setq -str (replace-regexp-in-string "\\([0-9]+\\)rd" "\\1" -str))
-              (setq -str (replace-regexp-in-string "\\([0-9]\\)th" "\\1" -str))
+              (setq $str (replace-regexp-in-string "\\([0-9]+\\)st" "\\1" $str))
+              (setq $str (replace-regexp-in-string "\\([0-9]+\\)nd" "\\1" $str))
+              (setq $str (replace-regexp-in-string "\\([0-9]+\\)rd" "\\1" $str))
+              (setq $str (replace-regexp-in-string "\\([0-9]\\)th" "\\1" $str))
 
-              (let (dateList -year -month -date -yyyy -mm -dd )
-                (setq dateList (parse-time-string -str))
-                (setq -year (nth 5 dateList))
-                (setq -month (nth 4 dateList))
-                (setq -date (nth 3 dateList))
+              (let (dateList $year $month $date $yyyy $mm $dd )
+                (setq dateList (parse-time-string $str))
+                (setq $year (nth 5 dateList))
+                (setq $month (nth 4 dateList))
+                (setq $date (nth 3 dateList))
 
-                (setq -yyyy (number-to-string -year))
-                (setq -mm (if -month (format "%02d" -month) "" ))
-                (setq -dd (if -date (format "%02d" -date) "" ))
-                (concat -yyyy "-" -mm "-" -dd))))))
+                (setq $yyyy (number-to-string $year))
+                (setq $mm (if $month (format "%02d" $month) "" ))
+                (setq $dd (if $date (format "%02d" $date) "" ))
+                (concat $yyyy "-" $mm "-" $dd))))))
 
-    (if -work-on-region-p
+    (if $work-on-region-p
         (progn (delete-region  (elt *begin-end 0) (elt *begin-end 1))
-               (insert -str))
-      -str )))
+               (insert $str))
+      $str )))
 
 
 
