@@ -3,7 +3,7 @@
 ;; Copyright © 2013-2016, by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.5.4
+;; Version: 1.5.5
 ;; Created: 02 Mar 2011
 ;; Package-Requires: ((emacs "24.3"))
 ;; Keywords: emacs lisp, utility, file
@@ -185,7 +185,7 @@ Version 2015-05-12"
          (split-string
           (shell-command-to-string
            (concat
-            "identify $format \"%w %h\" "
+            "identify -format \"%w %h\" "
             *img-file-path)))))
     (vector
      (string-to-number (elt $width-height 0))
