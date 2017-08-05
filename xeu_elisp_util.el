@@ -3,7 +3,7 @@
 ;; Copyright © 2013-2016, by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.5.5
+;; Version: 1.5.6
 ;; Created: 02 Mar 2011
 ;; Package-Requires: ((emacs "24.3"))
 ;; Keywords: emacs lisp, utility, file
@@ -69,18 +69,18 @@
 
 
 
-(defun xah-filter-list (*predicate *sequence)
-  "Return a new list such that *predicate is true on all members of *sequence.
+(defun xah-filter-list (@predicate @sequence)
+  "Return a new list such that @predicate is true on all members of @sequence.
 URL `http://ergoemacs.org/emacs/elisp_filter_list.html'
 Version 2016-07-18"
   (delete
    "e3824ad41f2ec1ed"
    (mapcar
     (lambda ($x)
-      (if (funcall *predicate $x)
+      (if (funcall @predicate $x)
           $x
         "e3824ad41f2ec1ed" ))
-    *sequence)))
+    @sequence)))
 
 ;; (xah-string-match-in-list-p
 ;; "/home/xah/web/xahlee_info/css_2.1_spec/propidx.html"
@@ -92,12 +92,12 @@ Version 2016-07-18"
 ;; "yes"
 ;; nil)
 
-(defun xah-string-match-in-list-p (*str *list-of-string *match-case-p &optional *reverse-contain-p)
-  "If *str occur in list *list-of-string, return true (the first element), else nil.
+(defun xah-string-match-in-list-p (@str @list-of-string @match-case-p &optional @reverse-contain-p)
+  "If @str occur in list @list-of-string, return true (the first element), else nil.
 
-if *reverse-contain-p is true, change the direction of match. That is, true if any element in *list-of-string occur in *str.
+if @reverse-contain-p is true, change the direction of match. That is, true if any element in @list-of-string occur in @str.
 
-*match-case-p determines whether case is literal for the match.
+@match-case-p determines whether case is literal for the match.
 
 No regex is used.
 
@@ -105,25 +105,25 @@ Existing match data is changed. Wrap it with `save-match-data' if you need it re
 
 URL `http://ergoemacs.org/emacs/elisp_string_match_in_list.html'
 Version 2016-07-18"
-  (let ((case-fold-search (not *match-case-p)))
-    (if *reverse-contain-p
+  (let ((case-fold-search (not @match-case-p)))
+    (if @reverse-contain-p
         (catch 'tag
           (mapc
            (lambda ($x)
-             (when (string-match (regexp-quote $x) *str ) (throw 'tag $x)))
-           *list-of-string)
+             (when (string-match (regexp-quote $x) @str ) (throw 'tag $x)))
+           @list-of-string)
           nil)
       (catch 'tag
         (mapc
          (lambda ($x)
-           (when (string-match (regexp-quote *str) $x ) (throw 'tag $x)))
-         *list-of-string)
+           (when (string-match (regexp-quote @str) $x ) (throw 'tag $x)))
+         @list-of-string)
         nil))))
 
 
 
-(defun xah-windows-style-path-to-unix  (*fpath)
-  "Turn a MS Windows style full path *FPATH to unix style.
+(defun xah-windows-style-path-to-unix  (@fpath)
+  "Turn a MS Windows style full path @FPATH to unix style.
 Note: This drops the drive letter.
 
 For example:
@@ -134,11 +134,11 @@ becomes
 TODO: The drive letter is removed. Not sure whether that should be part of this function. But emacs 23.2's `file-relative-name' has a bug. It does not work when there's a drive letter is capitalized."
   (replace-regexp-in-string
    "\\`[A-Za-z]:" ""
-   (replace-regexp-in-string "\\\\" "/" *fpath t t)))
+   (replace-regexp-in-string "\\\\" "/" @fpath t t)))
 
 
 
-(defun xah-get-image-dimensions (*file-path)
+(defun xah-get-image-dimensions (@file-path)
   "Returns a vector [width height] of a image's dimension.
 The elements are integer datatype.
 Support png jpg svg gif and any image type emacs supports.
@@ -149,11 +149,11 @@ Version 2017-01-11"
   (let (($x nil)
         ($y nil))
     (cond
-     ((string-match "\.svg$" *file-path)
+     ((string-match "\.svg$" @file-path)
       (progn
         (with-temp-buffer
           ;; hackish. grab the first occurence of width height in file
-          (insert-file-contents *file-path)
+          (insert-file-contents @file-path)
           (goto-char (point-min))
           (when (search-forward-regexp "width=\"\\([0-9]+\\).*\"" nil "NOERROR")
             (setq $x (match-string 1 )))
@@ -169,13 +169,13 @@ Version 2017-01-11"
           (clear-image-cache t)
           (setq $xy (image-size
                      (create-image
-                      (if (file-name-absolute-p *file-path)
-                          *file-path
-                        (concat default-directory *file-path)))
+                      (if (file-name-absolute-p @file-path)
+                          @file-path
+                        (concat default-directory @file-path)))
                      t)))
         (vector (car $xy) (cdr $xy)))))))
 
-(defun xah-get-image-dimensions-imk (*img-file-path)
+(defun xah-get-image-dimensions-imk (@img-file-path)
   "Returns a image file's width and height as a vector.
 This function requires ImageMagick's “identify” shell command.
 See also: `xah-get-image-dimensions'.
@@ -186,47 +186,47 @@ Version 2015-05-12"
           (shell-command-to-string
            (concat
             "identify -format \"%w %h\" "
-            *img-file-path)))))
+            @img-file-path)))))
     (vector
      (string-to-number (elt $width-height 0))
      (string-to-number (elt $width-height 1)))))
 
 
-(defun xah-get-string-from-file (*file-path)
-  "Return *file-path's content."
+(defun xah-get-string-from-file (@file-path)
+  "Return @file-path's content."
   (with-temp-buffer
-    (insert-file-contents *file-path)
+    (insert-file-contents @file-path)
     (buffer-string)))
 
-(defun xah-get-file-lines (*file-path)
-  "Return a list of lines of a file at *file-path."
+(defun xah-get-file-lines (@file-path)
+  "Return a list of lines of a file at @file-path."
   (with-temp-buffer
-    (insert-file-contents *file-path)
+    (insert-file-contents @file-path)
     (split-string (buffer-string) "\n" t)))
 
 
 
 ;; 2013-02-21 INCORRECT behavior.
-;(defun delete-subdirs-by-regex (*dir *regex)
-;  "Delete sub-directories in *dir whose path matches *REGEX."
+;(defun delete-subdirs-by-regex (@dir @regex)
+;  "Delete sub-directories in @dir whose path matches @REGEX."
 ;  (require 'find-lisp)
 ;  (mapc
 ;   (lambda ($x) (when (file-directory-p $x)
 ;;;(delete-directory $x t)
 ;                  (print $x)
 ;                  ))
-;   (find-lisp-find-files *dir *regex)) )
+;   (find-lisp-find-files @dir @regex)) )
 
-(defun xah-delete-files-by-regex (*dir *regex)
-  "Delete files in *dir whose file name (not full path) matches regex *regex.
+(defun xah-delete-files-by-regex (@dir @regex)
+  "Delete files in @dir whose file name (not full path) matches regex @regex.
  Example:
   (xah-delete-files-by-regex \"~/web\" \"~$\") ; remove files ending in ~
 "
   (require 'find-lisp)
   (mapc (lambda ($x) (if (file-regular-p $x) (delete-file $x)))
-        (find-lisp-find-files *dir *regex)))
+        (find-lisp-find-files @dir @regex)))
 
-(defun xah-file-relative-name-emacs24.1.1-fix (*file-path *dir-path)
+(defun xah-file-relative-name-emacs24.1.1-fix (@file-path @dir-path)
   "fix for `file-relative-name'. If path start with cap such as “C:” (Windows file path), it won't work.
 e.g.
  (file-relative-name \"c:/Users/h3/.emacs.d/test.el\" \"c:/Users/h3/.emacs.d/\" )
@@ -234,7 +234,7 @@ e.g.
 GNU Emacs 24.1.1 (i386-mingw-nt6.1.7601) of 2012-06-10 on MARVIN
 "
   (file-relative-name
-   (replace-regexp-in-string "\\`C:/" "c:/" *file-path  "FIXEDCASE" "LITERAL") *dir-path ))
+   (replace-regexp-in-string "\\`C:/" "c:/" @file-path  "FIXEDCASE" "LITERAL") @dir-path ))
 
 
 
@@ -262,24 +262,24 @@ GNU Emacs 24.1.1 (i386-mingw-nt6.1.7601) of 2012-06-10 on MARVIN
     ))
 
 ;; (defalias 'xah-trim-string 'string-trim
-;;   "Remove white spaces in beginning and ending of *string.
+;;   "Remove white spaces in beginning and ending of @string.
 ;; White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
 
 ;; Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You need to (require 'subr-x).
 ;; ")
 
-;; (defun xah-trim-string (*string)
-;;   "Remove white spaces in beginning and ending of *string.
+;; (defun xah-trim-string (@string)
+;;   "Remove white spaces in beginning and ending of @string.
 ;; White space here is any of: space, tab, emacs newline (line feed, ASCII 10).
 
 ;; Note: in emacs GNU Emacs 24.4+ and later, there's `string-trim' function. You need to (require 'subr-x).
 ;; "
-;;   (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" *string))
+;;   (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" @string))
 ;; )
 
-(defun xah-substract-path (*path1 *path2)
-  "Remove string *path2 from the beginning of *path1.
-length of *path1 ≥ to length *path2.
+(defun xah-substract-path (@path1 @path2)
+  "Remove string @path2 from the beginning of @path1.
+length of @path1 ≥ to length @path2.
 
 path1
 c:/Users/lisa/web/a/b
@@ -292,13 +292,13 @@ a/b
 
 This is the similar to emacs 24.4's `string-remove-prefix' from (require 'subr-x).
 Version 2015-12-15"
-  (let (($p2length (length *path2)))
-    (if (string= (substring *path1 0 $p2length) *path2 )
-        (substring *path1 $p2length)
-      (error "error 34689: beginning doesn't match: 「%s」 「%s」" *path1 *path2))))
+  (let (($p2length (length @path2)))
+    (if (string= (substring @path1 0 $p2length) @path2 )
+        (substring @path1 $p2length)
+      (error "error 34689: beginning doesn't match: 「%s」 「%s」" @path1 @path2))))
 
-(defun xah-hash-to-list (*hash-table)
-  "Return a list that represent the *HASH-TABLE
+(defun xah-hash-to-list (@hash-table)
+  "Return a list that represent the @HASH-TABLE
 Each element is a list: (list key value).
 
 See also, emacs 24.4's new functions.
@@ -312,12 +312,12 @@ Version 2015-04-25"
     (maphash
      (lambda (k v)
        (push (list k v) $result))
-     *hash-table)
+     @hash-table)
     $result))
 
 
 
-(defun xah-asciify-text (&optional *begin *end)
+(defun xah-asciify-text (&optional @begin @end)
   "Remove accents in some letters and some
 Change European language characters into equivalent ASCII ones, e.g. “café” ⇒ “cafe”.
 When called interactively, work on current line or text selection.
@@ -347,7 +347,7 @@ Version 2016-07-12"
           ])
         $begin $end
         )
-    (if (null *begin)
+    (if (null @begin)
         (if (use-region-p)
             (progn
               (setq $begin (region-beginning))
@@ -356,8 +356,8 @@ Version 2016-07-12"
             (setq $begin (line-beginning-position))
             (setq $end (line-end-position))))
       (progn
-        (setq $begin *begin)
-        (setq $end *end)))
+        (setq $begin @begin)
+        (setq $end @end)))
     (let ((case-fold-search t))
       (save-restriction
         (narrow-to-region $begin $end)
@@ -368,12 +368,12 @@ Version 2016-07-12"
              (replace-match (elt $pair 1))))
          $charMap)))))
 
-(defun xah-asciify-string (*string)
+(defun xah-asciify-string (@string)
   "Returns a new string. European language chars are changed ot ASCII ones e.g. “café” ⇒ “cafe”.
 See `xah-asciify-text'
 Version 2015-06-08"
   (with-temp-buffer
-      (insert *string)
+      (insert @string)
       (xah-asciify-text (point-min) (point-max))
       (buffer-string)))
 
@@ -385,7 +385,7 @@ Version 2015-06-08"
 
 (defvar xah-weekday-names '("Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday" "Sunday") "list of English weekday full names.")
 
-(defun xah-insert-date (&optional *add-time-stamp-p)
+(defun xah-insert-date (&optional @add-time-stamp-p)
   "Insert current date and or time.
 
 • In this format yyyy-mm-dd.
@@ -396,7 +396,7 @@ See also `xah-current-date-time-string'."
   (interactive "P")
   (when (use-region-p) (delete-region (region-beginning) (region-end) ) )
   (cond
-   ((equal *add-time-stamp-p nil ) (insert (format-time-string "%Y-%m-%d")))
+   ((equal @add-time-stamp-p nil ) (insert (format-time-string "%Y-%m-%d")))
    (t (insert (xah-current-date-time-string))) ) )
 
 (defun xah-current-date-time-string ()
@@ -408,28 +408,28 @@ Note, for the time zone offset, both the formats 「hhmm」 and 「hh:mm」 are 
    (format-time-string "%Y-%m-%dT%T")
    (funcall (lambda ($x) (format "%s:%s" (substring $x 0 3) (substring $x 3 5))) (format-time-string "%z"))))
 
-(defun xah-is-datetimestamp-p (*input-string)
-  "Return t if *input-string is a date/time stamp, else nil.
+(defun xah-is-datetimestamp-p (@input-string)
+  "Return t if @input-string is a date/time stamp, else nil.
 This is based on heuristic, so it's not 100% correct.
 If the string contains any month names, weekday names, or of the form dddd-dd-dd, dddd-dd-dddd, dddd-dd-dd, or using slash, then it's considered a date.
 "
   (cond
-         ((string-match (regexp-opt (append xah-month-full-names xah-month-abbrev-names xah-weekday-names) 'words) *input-string) t)
+         ((string-match (regexp-opt (append xah-month-full-names xah-month-abbrev-names xah-weekday-names) 'words) @input-string) t)
          ;; mm/dd/yyyy
-         ((string-match "\\b[0-9][0-9]/[0-9][0-9]/[0-9][0-9][0-9][0-9]\\b" *input-string) t)
+         ((string-match "\\b[0-9][0-9]/[0-9][0-9]/[0-9][0-9][0-9][0-9]\\b" @input-string) t)
          ;; yyyy/mm/dd
-         ((string-match "\\b[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]\\b" *input-string) t)
+         ((string-match "\\b[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]\\b" @input-string) t)
          ;; mm/dd/yy
-         ((string-match "\\b[0-9][0-9]/[0-9][0-9]/[0-9][0-9]\\b" *input-string) t)
+         ((string-match "\\b[0-9][0-9]/[0-9][0-9]/[0-9][0-9]\\b" @input-string) t)
          ;; mm-dd-yyyy
-         ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9]\\b" *input-string) t)
+         ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9]\\b" @input-string) t)
          ;; yyyy-mm-dd
-         ((string-match "\\b[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" *input-string) t)
+         ((string-match "\\b[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" @input-string) t)
          ;; mm-dd-yy
-         ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" *input-string) t)
+         ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" @input-string) t)
          (t nil) ))
 
-(defun xah-fix-datetime-stamp (*input-string &optional *begin-end)
+(defun xah-fix-datetime-stamp (@input-string &optional @begin-end)
   "Change timestamp under cursor into a yyyy-mm-dd format.
 If there's a text selection, use that as input, else use current line.
 
@@ -441,8 +441,8 @@ For example:
  「11/28/1994」                     ⇒ 「1994-11-28」
  「1994/11/28」                     ⇒ 「1994-11-28」
 
-When called in lisp program, the optional second argument “*begin-end” is a vector of region boundary. (it can also be a list)
-If “*begin-end” is non-nil, the region is taken as input (and “*input-string” is ignored).
+When called in lisp program, the optional second argument “@begin-end” is a vector of region boundary. (it can also be a list)
+If “@begin-end” is non-nil, the region is taken as input (and “@input-string” is ignored).
 
 URL `http://ergoemacs.org/emacs/elisp_parse_time.html'
 Version 2015-04-14"
@@ -451,8 +451,8 @@ Version 2015-04-14"
    (list nil (vector (line-beginning-position) (line-end-position))))
 
   (let (
-        ($str (if *begin-end (buffer-substring-no-properties (elt *begin-end 0) (elt *begin-end 1)) *input-string))
-        ($work-on-region-p (if *begin-end t nil)))
+        ($str (if @begin-end (buffer-substring-no-properties (elt @begin-end 0) (elt @begin-end 1)) @input-string))
+        ($work-on-region-p (if @begin-end t nil)))
     (require 'parse-time)
 
     (setq $str (replace-regexp-in-string "^ *\\(.+\\) *$" "\\1" $str)) ; remove white spaces
@@ -520,7 +520,7 @@ Version 2015-04-14"
                 (concat $yyyy "-" $mm "-" $dd))))))
 
     (if $work-on-region-p
-        (progn (delete-region  (elt *begin-end 0) (elt *begin-end 1))
+        (progn (delete-region  (elt @begin-end 0) (elt @begin-end 1))
                (insert $str))
       $str )))
 
