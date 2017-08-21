@@ -1,18 +1,15 @@
 ;;; xeu_elisp_util.el --- xah's misc elisp utility. -*- coding: utf-8; lexical-binding: t; -*-
 
-;; Copyright © 2013-2016, by Xah Lee
+;; Copyright © 2013-2017, by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.5.6
+;; Version: 1.5.7 2017-08-13
 ;; Created: 02 Mar 2011
 ;; Package-Requires: ((emacs "24.3"))
+;; License: GPL v3
 ;; Keywords: emacs lisp, utility, file
 
 ;; This file is not part of GNU Emacs.
-
-;;; License:
-
-;; You can redistribute this program and/or modify it under the terms of the GNU General Public License version 2.
 
 ;;; Commentary:
 
