@@ -1,9 +1,9 @@
 ;;; xeu_elisp_util.el --- xah's misc elisp utility. -*- coding: utf-8; lexical-binding: t; -*-
 
-;; Copyright © 2013-2017, by Xah Lee
+;; Copyright © 2013-2019, by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.5.7 2017-08-13
+;; Version: 1.5.20190611135355
 ;; Created: 02 Mar 2011
 ;; Package-Requires: ((emacs "24.3"))
 ;; License: GPL v3
@@ -296,15 +296,10 @@ Version 2015-12-15"
 
 (defun xah-hash-to-list (@hash-table)
   "Return a list that represent the @HASH-TABLE
-Each element is a list: (list key value).
-
-See also, emacs 24.4's new functions.
- (require 'subr-x)
- `hash-table-keys'
- `hash-table-values'
+Each element is a list: '(key value).
 
 http://ergoemacs.org/emacs/elisp_hash_table.html
-Version 2015-04-25"
+Version 2019-06-11"
   (let ($result)
     (maphash
      (lambda (k v)
@@ -320,41 +315,39 @@ Change European language characters into equivalent ASCII ones, e.g. “café”
 When called interactively, work on current line or text selection.
 
 URL `http://ergoemacs.org/emacs/emacs_zap_gremlins.html'
-Version 2016-07-12"
+Version 2018-11-12"
   (interactive)
   (let (($charMap
          [
-          ["á\\|à\\|â\\|ä\\|ā\\|ǎ\\|ã\\|å\\|ą" "a"]
-          ["é\\|è\\|ê\\|ë\\|ē\\|ě\\|ę" "e"]
-          ["í\\|ì\\|î\\|ï\\|ī\\|ǐ" "i"]
-          ["ó\\|ò\\|ô\\|ö\\|õ\\|ǒ\\|ø\\|ō" "o"]
-          ["ú\\|ù\\|û\\|ü\\|ū"     "u"]
-          ["Ý\\|ý\\|ÿ"     "y"]
-          ["ç\\|č\\|ć" "c"]
-          ["ď\\|ð" "d"]
-          ["ľ\\|ĺ\\|ł" "l"]
-          ["ñ\\|ň\\|ń" "n"]
-          ["þ" "th"]
           ["ß" "ss"]
+          ["á\\|à\\|â\\|ä\\|ā\\|ǎ\\|ã\\|å\\|ą\\|ă\\|ạ\\|ả\\|ả\\|ấ\\|ầ\\|ẩ\\|ẫ\\|ậ\\|ắ\\|ằ\\|ẳ\\|ặ" "a"]
           ["æ" "ae"]
+          ["ç\\|č\\|ć" "c"]
+          ["é\\|è\\|ê\\|ë\\|ē\\|ě\\|ę\\|ẹ\\|ẻ\\|ẽ\\|ế\\|ề\\|ể\\|ễ\\|ệ" "e"]
+          ["í\\|ì\\|î\\|ï\\|ī\\|ǐ\\|ỉ\\|ị" "i"]
+          ["ñ\\|ň\\|ń" "n"]
+          ["ó\\|ò\\|ô\\|ö\\|õ\\|ǒ\\|ø\\|ō\\|ồ\\|ơ\\|ọ\\|ỏ\\|ố\\|ổ\\|ỗ\\|ộ\\|ớ\\|ờ\\|ở\\|ợ" "o"]
+          ["ú\\|ù\\|û\\|ü\\|ū\\|ũ\\|ư\\|ụ\\|ủ\\|ứ\\|ừ\\|ử\\|ữ\\|ự"     "u"]
+          ["ý\\|ÿ\\|ỳ\\|ỷ\\|ỹ"     "y"]
+          ["þ" "th"]
+          ["ď\\|ð\\|đ" "d"]
+          ["ĩ" "i"]
+          ["ľ\\|ĺ\\|ł" "l"]
+          ["ř\\|ŕ" "r"]
           ["š\\|ś" "s"]
           ["ť" "t"]
-          ["ř\\|ŕ" "r"]
           ["ž\\|ź\\|ż" "z"]
+          [" " " "]       ; thin space etc
+          ["–" "-"]       ; dash
+          ["—\\|一" "--"] ; em dash etc
           ])
         $begin $end
         )
     (if (null @begin)
         (if (use-region-p)
-            (progn
-              (setq $begin (region-beginning))
-              (setq $end (region-end)))
-          (progn
-            (setq $begin (line-beginning-position))
-            (setq $end (line-end-position))))
-      (progn
-        (setq $begin @begin)
-        (setq $end @end)))
+            (setq $begin (region-beginning) $end (region-end))
+          (setq $begin (line-beginning-position) $end (line-end-position)))
+      (setq $begin @begin $end @end))
     (let ((case-fold-search t))
       (save-restriction
         (narrow-to-region $begin $end)
