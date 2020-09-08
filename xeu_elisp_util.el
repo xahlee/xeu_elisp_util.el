@@ -1,9 +1,9 @@
 ;;; xeu_elisp_util.el --- xah's misc elisp utility. -*- coding: utf-8; lexical-binding: t; -*-
 
-;; Copyright © 2013-2019, by Xah Lee
+;; Copyright © 2013-2020, by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.5.20190611135355
+;; Version: 1.2.20200908060611
 ;; Created: 02 Mar 2011
 ;; Package-Requires: ((emacs "24.3"))
 ;; License: GPL v3
@@ -419,100 +419,137 @@ If the string contains any month names, weekday names, or of the form dddd-dd-dd
          ((string-match "\\b[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\\b" @input-string) t)
          (t nil) ))
 
-(defun xah-fix-datetime-stamp (@input-string &optional @begin-end)
+(defun xah-fix-datetime (@begin @end)
   "Change timestamp under cursor into a yyyy-mm-dd format.
 If there's a text selection, use that as input, else use current line.
+Replace the text in selection or current line.
 
 Any “day of week”, or “time” info, or any other parts of the string, are discarded.
 For example:
- 「TUESDAY, FEB 15, 2011 05:16 ET」 ⇒ 「2011-02-15」
- 「November 28, 1994」              ⇒ 「1994-11-28」
- 「Nov. 28, 1994」                  ⇒ 「1994-11-28」
- 「11/28/1994」                     ⇒ 「1994-11-28」
- 「1994/11/28」                     ⇒ 「1994-11-28」
+ TUESDAY, FEB 15, 2011 05:16 ET → 2011-02-15
+ November 28, 1994              → 1994-11-28
+ Nov. 28, 1994                  → 1994-11-28
+ 11/28/1994                     → 1994-11-28
+ 1994/11/28                     → 1994-11-28
 
-When called in lisp program, the optional second argument “@begin-end” is a vector of region boundary. (it can also be a list)
-If “@begin-end” is non-nil, the region is taken as input (and “@input-string” is ignored).
+URL `http://ergoemacs.org/emacs/elisp_datetime_parser.html'
+Version 2020-09-08"
+  (interactive
+   (list
+    (if (region-active-p) (region-beginning))
+    (if (region-active-p) (region-end))))
+  (require 'parse-time)
+  (let ($p1 $p2 $in)
+    (if @begin
+        (setq $p1 @begin $p2 @end)
+      (setq $p1 (line-beginning-position) $p2 (line-end-position)))
+    (setq $in (replace-regexp-in-string "^ *\\(.+\\) *$" "\\1" (buffer-substring-no-properties $p1 $p2)))
+  ; remove white spaces
 
-URL `http://ergoemacs.org/emacs/elisp_parse_time.html'
-Version 2015-04-14"
-
-(interactive
-   (list nil (vector (line-beginning-position) (line-end-position))))
-
-  (let (
-        ($str (if @begin-end (buffer-substring-no-properties (elt @begin-end 0) (elt @begin-end 1)) @input-string))
-        ($work-on-region-p (if @begin-end t nil)))
-    (require 'parse-time)
-
-    (setq $str (replace-regexp-in-string "^ *\\(.+\\) *$" "\\1" $str)) ; remove white spaces
-
-    (setq $str
+    (setq $in
           (cond
-           ;; USA convention of mm/dd/yyyy
-           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" $str)
-            (concat (match-string 3 $str) "-" (match-string 1 $str) "-" (match-string 2 $str)))
-           ;; USA convention of m/dd/yyyy
-           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" $str)
-            (concat (match-string 3 $str) "-0" (match-string 1 $str) "-" (match-string 2 $str)))
-
-           ;; USA convention of mm/dd/yy
-           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" $str)
-            (concat (format-time-string "%C") (match-string 3 $str) "-" (match-string 1 $str) "-" (match-string 2 $str)))
-           ;; USA convention of m/dd/yy
-           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" $str)
-            (concat (format-time-string "%C") (match-string 3 $str) "-0" (match-string 1 $str) "-" (match-string 2 $str)))
 
            ;; yyyy/mm/dd
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" $str)
-            (concat (match-string 1 $str) "-" (match-string 2 $str) "-" (match-string 3 $str)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" $in)
+            (concat (match-string 1 $in) "-" (match-string 2 $in) "-" (match-string 3 $in)))
+
+           ;; mm/dd/yyyy
+           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" $in)
+            (concat (match-string 3 $in) "-" (match-string 1 $in) "-" (match-string 2 $in)))
+           ;; m/dd/yyyy
+           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9][0-9][0-9]\\)" $in)
+            (concat (match-string 3 $in) "-0" (match-string 1 $in) "-" (match-string 2 $in)))
+
+           ;; USA convention of mm/dd/yy
+           ((string-match "\\([0-9][0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" $in)
+            (concat (format-time-string "%C") (match-string 3 $in) "-" (match-string 1 $in) "-" (match-string 2 $in)))
+           ;; USA convention of m/dd/yy
+           ((string-match "\\([0-9]\\)/\\([0-9][0-9]\\)/\\([0-9][0-9]\\)" $in)
+            (concat (format-time-string "%C") (match-string 3 $in) "-0" (match-string 1 $in) "-" (match-string 2 $in)))
 
            ;; some ISO 8601. yyyy-mm-ddThh:mm
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T[0-9][0-9]:[0-9][0-9]" $str)
-            (concat (match-string 1 $str) "-" (match-string 2 $str) "-" (match-string 3 $str)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)T[0-9][0-9]:[0-9][0-9]" $in)
+            (concat (match-string 1 $in) "-" (match-string 2 $in) "-" (match-string 3 $in)))
            ;; some ISO 8601. yyyy-mm-dd
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)" $str)
-            (concat (match-string 1 $str) "-" (match-string 2 $str) "-" (match-string 3 $str)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)-\\([0-9][0-9]\\)" $in)
+            (concat (match-string 1 $in) "-" (match-string 2 $in) "-" (match-string 3 $in)))
            ;; some ISO 8601. yyyy-mm
-           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)" $str)
-            (concat (match-string 1 $str) "-" (match-string 2 $str)))
+           ((string-match "\\([0-9][0-9][0-9][0-9]\\)-\\([0-9][0-9]\\)" $in)
+            (concat (match-string 1 $in) "-" (match-string 2 $in)))
 
            ;; else
            (t
             (progn
-              (setq $str (replace-regexp-in-string "January " "Jan. " $str))
-              (setq $str (replace-regexp-in-string "February " "Feb. " $str))
-              (setq $str (replace-regexp-in-string "March " "Mar. " $str))
-              (setq $str (replace-regexp-in-string "April " "Apr. " $str))
-              (setq $str (replace-regexp-in-string "May " "May. " $str))
-              (setq $str (replace-regexp-in-string "June " "Jun. " $str))
-              (setq $str (replace-regexp-in-string "July " "Jul. " $str))
-              (setq $str (replace-regexp-in-string "August " "Aug. " $str))
-              (setq $str (replace-regexp-in-string "September " "Sep. " $str))
-              (setq $str (replace-regexp-in-string "October " "Oct. " $str))
-              (setq $str (replace-regexp-in-string "November " "Nov. " $str))
-              (setq $str (replace-regexp-in-string "December " "Dec. " $str))
+              (setq $in (replace-regexp-in-string "January " "Jan. " $in))
+              (setq $in (replace-regexp-in-string "February " "Feb. " $in))
+              (setq $in (replace-regexp-in-string "March " "Mar. " $in))
+              (setq $in (replace-regexp-in-string "April " "Apr. " $in))
+              (setq $in (replace-regexp-in-string "May " "May. " $in))
+              (setq $in (replace-regexp-in-string "June " "Jun. " $in))
+              (setq $in (replace-regexp-in-string "July " "Jul. " $in))
+              (setq $in (replace-regexp-in-string "August " "Aug. " $in))
+              (setq $in (replace-regexp-in-string "September " "Sep. " $in))
+              (setq $in (replace-regexp-in-string "October " "Oct. " $in))
+              (setq $in (replace-regexp-in-string "November " "Nov. " $in))
+              (setq $in (replace-regexp-in-string "December " "Dec. " $in))
 
-              (setq $str (replace-regexp-in-string "\\([0-9]+\\)st" "\\1" $str))
-              (setq $str (replace-regexp-in-string "\\([0-9]+\\)nd" "\\1" $str))
-              (setq $str (replace-regexp-in-string "\\([0-9]+\\)rd" "\\1" $str))
-              (setq $str (replace-regexp-in-string "\\([0-9]\\)th" "\\1" $str))
+              (setq $in (replace-regexp-in-string "\\([0-9]+\\)st" "\\1" $in))
+              (setq $in (replace-regexp-in-string "\\([0-9]+\\)nd" "\\1" $in))
+              (setq $in (replace-regexp-in-string "\\([0-9]+\\)rd" "\\1" $in))
+              (setq $in (replace-regexp-in-string "\\([0-9]\\)th" "\\1" $in))
 
-              (let (dateList $year $month $date $yyyy $mm $dd )
-                (setq dateList (parse-time-string $str))
-                (setq $year (nth 5 dateList))
-                (setq $month (nth 4 dateList))
-                (setq $date (nth 3 dateList))
+              (let ($dateList $year $month $date $yyyy $mm $dd )
+                (setq $dateList (parse-time-string $in))
+                (setq $year (nth 5 $dateList))
+                (setq $month (nth 4 $dateList))
+                (setq $date (nth 3 $dateList))
 
                 (setq $yyyy (number-to-string $year))
                 (setq $mm (if $month (format "%02d" $month) "" ))
                 (setq $dd (if $date (format "%02d" $date) "" ))
                 (concat $yyyy "-" $mm "-" $dd))))))
+    (delete-region $p1 $p2 )
+    (insert $in)))
 
-    (if $work-on-region-p
-        (progn (delete-region  (elt @begin-end 0) (elt @begin-end 1))
-               (insert $str))
-      $str )))
+(defun xah-fix-datetime-string (@datetime)
+  "Return a new string of @datetime in yyyy-mm-dd format.
+Other datetime info such as hours, minutes, time zone, are discarded. This function calls `xah-fix-datetime' to do work.
+
+URL `http://ergoemacs.org/emacs/elisp_datetime_parser.html'
+Version 2020-09-08"
+  (with-temp-buffer
+    (insert @datetime)
+    (xah-fix-datetime (point-min) (point-max))
+    (buffer-substring-no-properties (point-min) (point-max))))
+
+(defun xah-fix-datetime-stamp (@input-string &optional @begin-end)
+  "obsolete function to parse time on region or string.
+ use `xah-fix-datetime' or `xah-fix-datetime-string' instead.
+Declared obsolete on 2020-09-08.
+2020-09-08
+"
+  (interactive)
+  (if (elt @begin-end 0)
+      (xah-fix-datetime (elt @begin-end 0) (elt @begin-end 1))
+    (xah-fix-datetime-string @input-string)))
+
+;; (define-obsolete-function-alias 'xah-fix-datetime-stamp 'xah-fix-datetime-string "27.1"
+;; "Change timestamp under cursor into a yyyy-mm-dd format.
+;; If there's a text selection, use that as input, else use current line.
+
+;; Any “day of week”, or “time” info, or any other parts of the string, are discarded.
+;; For example:
+;;  「TUESDAY, FEB 15, 2011 05:16 ET」 ⇒ 「2011-02-15」
+;;  「November 28, 1994」              ⇒ 「1994-11-28」
+;;  「Nov. 28, 1994」                  ⇒ 「1994-11-28」
+;;  「11/28/1994」                     ⇒ 「1994-11-28」
+;;  「1994/11/28」                     ⇒ 「1994-11-28」
+
+;; When called in lisp program, the optional second argument “@begin-end” is a vector of region boundary. (it can also be a list)
+;; If “@begin-end” is non-nil, the region is taken as input (and “@input-string” is ignored).
+
+;; URL `http://ergoemacs.org/emacs/elisp_parse_time.html'
+;; Version 2015-04-14" )
 
 
 
