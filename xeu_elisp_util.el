@@ -3,7 +3,7 @@
 ;; Copyright © 2013-2020, by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.2.20200908060611
+;; Version: 1.4.20201118021915
 ;; Created: 02 Mar 2011
 ;; Package-Requires: ((emacs "24.3"))
 ;; License: GPL v3
@@ -522,16 +522,15 @@ Version 2020-09-08"
     (xah-fix-datetime (point-min) (point-max))
     (buffer-substring-no-properties (point-min) (point-max))))
 
-(defun xah-fix-datetime-stamp (@input-string &optional @begin-end)
-  "obsolete function to parse time on region or string.
- use `xah-fix-datetime' or `xah-fix-datetime-string' instead.
-Declared obsolete on 2020-09-08.
-2020-09-08
-"
-  (interactive)
-  (if (elt @begin-end 0)
-      (xah-fix-datetime (elt @begin-end 0) (elt @begin-end 1))
-    (xah-fix-datetime-string @input-string)))
+;; (defun xah-fix-datetime-stamp (@input-string &optional @begin-end)
+;;   "obsolete function to parse time on region or string.
+;;  use `xah-fix-datetime' or `xah-fix-datetime-string' instead.
+;; Declared obsolete on 2020-09-08.
+;; Version 2020-11-18"
+;; (interactive)
+;;   (if (elt @begin-end 0)
+;;       (xah-fix-datetime (elt @begin-end 0) (elt @begin-end 1))
+;;     (xah-fix-datetime-string @input-string)))
 
 ;; (define-obsolete-function-alias 'xah-fix-datetime-stamp 'xah-fix-datetime-string "27.1"
 ;; "Change timestamp under cursor into a yyyy-mm-dd format.
